@@ -25,8 +25,8 @@
             align-items: stretch;
         }
         .container {
-            max-width: 700px;
             width: 100vw;
+            max-width: 100vw;
             margin: 0 auto;
             flex: 1 0 auto;
             display: flex;
@@ -145,7 +145,6 @@
             margin-right: 2px;
             text-align: center;
         }
-        /* 游戏主界面整体容器，包含ABC和步数 */
         #main-game-area {
             display: flex;
             flex-direction: column;
@@ -153,7 +152,7 @@
             margin-top: 10px;
             margin-bottom: 0;
             width: 100vw;
-            max-width: 700px;
+            max-width: 100vw;
             box-sizing: border-box;
         }
         #game {
@@ -162,16 +161,14 @@
             align-items: flex-end;
             margin-top: 0;
             margin-bottom: 6px;
-            gap: 24px;
+            gap: 0;
             width: 100vw;
-            max-width: 700px;
+            max-width: 100vw;
             box-sizing: border-box;
-            /* 高度由JS动态设置 */
         }
         .tower {
-            width: 110px;
-            /* 高度由JS动态设置 */
-            margin: 0 6px;
+            /* 宽度和高度由JS动态设置 */
+            margin: 0;
             background: linear-gradient(180deg, #e0e0e0 60%, #b2dfdb 100%);
             border-radius: 18px 18px 0 0;
             position: relative;
@@ -180,23 +177,22 @@
             align-items: center;
             box-shadow: 0 8px 22px #b2dfdb55;
             border: 2px solid #80cbc4;
-            transition: box-shadow 0.2s, height 0.2s;
+            transition: box-shadow 0.2s, height 0.2s, width 0.2s;
         }
         .tower:hover {
             box-shadow: 0 12px 36px #26a69a55;
         }
-        /* 修改label行为绝对对齐每个柱子下方 */
         .tower-label-row {
             display: flex;
             justify-content: center;
             align-items: flex-start;
             width: 100vw;
-            max-width: 700px;
+            max-width: 100vw;
             margin: 0 auto;
             margin-top: 2px;
             margin-bottom: 0;
             box-sizing: border-box;
-            gap: 24px; /* 与#game的gap保持一致 */
+            gap: 0;
         }
         .tower-label {
             text-align: center;
@@ -208,8 +204,7 @@
             line-height: 1.2;
             min-height: 1.5em;
             user-select: none;
-            /* 让label宽度和tower一致 */
-            width: 110px;
+            /* 宽度由JS动态设置 */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -219,19 +214,12 @@
             margin-bottom: 0;
         }
         .turtle {
-            --turtle-width: 80px;
-            --turtle-height: 44px;
-            --turtle-font: 18px;
-            width: var(--turtle-width);
-            height: var(--turtle-height);
-            margin-bottom: 4px;
+            /* 尺寸由JS动态设置 */
             border-radius: 14px;
             background: none;
             color: #333;
             text-align: center;
-            line-height: var(--turtle-height);
             font-weight: bold;
-            font-size: var(--turtle-font);
             box-shadow: 0 3px 10px #b2dfdb88;
             cursor: pointer;
             transition: box-shadow 0.2s, border 0.2s, transform 0.15s;
@@ -250,7 +238,6 @@
             box-shadow: 0 0 10px #26a69a99, 0 3px 10px #b2dfdb88;
             transform: scale(1.03);
         }
-        /* 乌龟SVG样式 */
         .turtle-svg {
             width: 100%;
             height: 100%;
@@ -265,7 +252,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: var(--turtle-font);
             font-weight: bold;
             color: #333;
             pointer-events: none;
@@ -282,7 +268,7 @@
         #blur-overlay { display: none !important; }
         #signature {
             width: 100vw;
-            max-width: 700px;
+            max-width: 100vw;
             margin: 0 auto 0 auto;
             padding: 0;
             display: flex;
@@ -305,62 +291,25 @@
             margin-bottom: 0;
             height: 38px;
         }
-        /* 响应式优化：小屏幕下保持乌龟和数字可见且不被压缩 */
         @media (max-width: 900px) {
-            .container { max-width: 98vw; }
-            #game { gap: 8px; max-width: 98vw; }
-            .tower { width: 50px; }
-            .tower-label-row { max-width: 98vw; gap: 8px; }
-            .tower-label { font-size: 1.2em; min-height: 1.5em; width: 50px;}
-            .turtle {
-                --turtle-width: 32px;
-                --turtle-height: 18px;
-                --turtle-font: 9px;
-            }
+            .container { max-width: 100vw; }
+            #game { max-width: 100vw; }
+            .tower-label-row { max-width: 100vw; }
             #signature { font-size: 0.95em; height: 28px; border-radius: 0 0 10px 10px;}
         }
         @media (max-width: 600px) {
             #instructions { padding: 8px 2vw; font-size: 13px;}
             .container { max-width: 100vw; }
             #main-game-area { margin-top: 4px; }
-            #game { gap: 2px; max-width: 100vw;}
-            .tower { width: 22vw; min-width: 22vw; max-width: 32vw; }
-            .tower-label-row { max-width: 100vw; gap: 2px;}
-            .tower-label { font-size: 1.3em; min-height: 1.5em; width: 22vw;}
-            .turtle {
-                --turtle-width: 16vw;
-                --turtle-height: 8vw;
-                --turtle-font: 4vw;
-                min-width: 14px;
-                min-height: 8px;
-                max-width: 60px;
-                max-height: 30px;
-            }
-            .turtle-svg {
-                width: 100%;
-                height: 100%;
-                min-width: 10px;
-                min-height: 8px;
-                max-width: 60px;
-                max-height: 30px;
-            }
+            #game { max-width: 100vw;}
+            .tower-label-row { max-width: 100vw;}
             #steps { font-size: 10px; }
             #game-count { font-size: 10px; }
             #signature { font-size: 0.8em; height: 18px; border-radius: 0 0 6px 6px;}
         }
         @media (max-width: 400px) {
-            .tower { width: 28vw; min-width: 18vw; }
-            .tower-label-row { gap: 2px;}
-            .tower-label { font-size: 1.1em; width: 28vw;}
-            .turtle {
-                --turtle-width: 12vw;
-                --turtle-height: 6vw;
-                --turtle-font: 3vw;
-                min-width: 8px;
-                min-height: 5px;
-                max-width: 30px;
-                max-height: 16px;
-            }
+            .tower-label-row { max-width: 100vw;}
+            #signature { font-size: 0.7em; height: 14px; border-radius: 0 0 4px 4px;}
         }
     </style>
 </head>
@@ -392,7 +341,7 @@
                 <select id="speed-range">
                     <option value="10">极速</option>
                     <option value="100">很快</option>
-                    <option value="500">中等</option>
+                    <option value="500" selected>中等</option>
                     <option value="1000">较慢</option>
                     <option value="2000">很慢</option>
                 </select>
@@ -417,7 +366,6 @@
 
         // 游戏次数统计
         let gameCount = 0;
-        // 尝试从localStorage读取
         if (window.localStorage) {
             let gc = localStorage.getItem('stack_turtles_game_count');
             if (gc !== null) {
@@ -428,74 +376,98 @@
         // --- 礼花特效相关（已禁用） ---
         const fireworks = { start() {}, stop() {} };
 
-        // 固定的乌龟尺寸参数
+        // 固定的乌龟和塔尺寸参数
         let fixedTurtleSize = null;
 
-        // 计算初始A柱满n只乌龟时的最佳尺寸，只在startGame时计算一次
+        // 计算最大化填满的乌龟和塔尺寸
         function calcFixedTurtleSize(n) {
-            // 计算塔高度和label高度
-            let baseTurtleHeight = 44, baseTurtleMargin = 4, baseLabel = 36;
-            let towerHeight = n * baseTurtleHeight + (n-1)*baseTurtleMargin + baseLabel;
-            let labelHeight = baseLabel;
-            // ----------- 修改开始 -----------
-            // 手机端优化：当n较小时，塔身高度仍然按最大3层来算，保证乌龟能填满塔身
-            let minNForHeight = 3;
-            let nForHeight = n;
-            if (window.innerWidth <= 900) {
-                baseTurtleHeight = 18;
-                baseTurtleMargin = 2;
-                baseLabel = 28;
-                minNForHeight = 3;
-                nForHeight = Math.max(n, minNForHeight);
-                towerHeight = nForHeight * baseTurtleHeight + (nForHeight-1)*baseTurtleMargin + baseLabel;
-                labelHeight = baseLabel;
-            }
-            if (window.innerWidth <= 600) {
-                let vw = Math.max(window.innerWidth, 320) / 100;
-                baseTurtleHeight = 8 * vw;
-                baseTurtleMargin = 1 * vw;
-                baseLabel = 18;
-                minNForHeight = 3;
-                nForHeight = Math.max(n, minNForHeight);
-                towerHeight = nForHeight * baseTurtleHeight + (nForHeight-1)*baseTurtleMargin + baseLabel;
-                labelHeight = baseLabel;
-            }
-            if (window.innerWidth <= 400) {
-                let vw = Math.max(window.innerWidth, 240) / 100;
-                baseTurtleHeight = 6 * vw;
-                baseTurtleMargin = 0.7 * vw;
-                baseLabel = 12;
-                minNForHeight = 3;
-                nForHeight = Math.max(n, minNForHeight);
-                towerHeight = nForHeight * baseTurtleHeight + (nForHeight-1)*baseTurtleMargin + baseLabel;
-                labelHeight = baseLabel;
-            }
-            // 塔身高度 = towerHeight - labelHeight
-            let availableHeight = towerHeight - labelHeight;
-            let margin = Math.max(availableHeight * 0.03, 3); // 最小3px间隙
-            let count = Math.max(n, 1);
-            let turtleHeight = (availableHeight - (count - 1) * margin) / count;
+            // 计算可用宽度和高度
+            let vw = Math.max(window.innerWidth, 320);
+            let vh = Math.max(window.innerHeight, 400);
+
+            // 预留顶部/底部空间
+            let topSpace = 180; // 控件、标题、说明等
+            let bottomSpace = 60; // 步数、签名等
+            let availableHeight = vh - topSpace - bottomSpace;
+            if (availableHeight < 120) availableHeight = 120;
+
+            // 塔label高度
+            let labelHeight = 36;
+            if (vw <= 900) labelHeight = 28;
+            if (vw <= 600) labelHeight = 18;
+            if (vw <= 400) labelHeight = 12;
+
+            // 塔宽度 = 总宽度 / 3
+            let towerGap = 0; // 塔之间无间隙
+            let towerCount = 3;
+            let towerWidth = Math.floor((vw - (towerCount-1)*towerGap) / towerCount);
+
+            // 乌龟宽度最大不能超过塔宽的90%
+            let maxTurtleWidth = towerWidth * 0.9;
+
+            // 塔身高度
+            let towerHeight = availableHeight;
+            // 塔身可放乌龟的高度
+            let towerBodyHeight = towerHeight - labelHeight;
+            if (towerBodyHeight < 40) towerBodyHeight = 40;
+
+            // 乌龟之间的间隙
+            let margin = Math.max(Math.floor(towerBodyHeight * 0.02), 2);
+
+            // 乌龟高度
+            let turtleHeight = Math.floor((towerBodyHeight - (n-1)*margin) / n);
             if (turtleHeight < 8) turtleHeight = 8;
             if (turtleHeight > 120) turtleHeight = 120;
-            let turtleWidth = turtleHeight * 1.8;
-            let turtleFont = turtleHeight * 0.4 + 6;
-            return {turtleWidth, turtleHeight, turtleFont, margin, labelHeight, towerHeight};
-            // ----------- 修改结束 -----------
+
+            // 乌龟宽度
+            let turtleWidth = Math.floor(turtleHeight * 1.8);
+            if (turtleWidth > maxTurtleWidth) {
+                turtleWidth = Math.floor(maxTurtleWidth);
+                turtleHeight = Math.floor(turtleWidth / 1.8);
+            }
+
+            // 字体
+            let turtleFont = Math.floor(turtleHeight * 0.45 + 6);
+
+            // 塔宽度以乌龟宽度为准
+            towerWidth = Math.ceil(turtleWidth / 0.9);
+
+            // 重新计算最大塔宽度，防止超出屏幕
+            let totalTowerWidth = towerWidth * towerCount + towerGap * (towerCount-1);
+            if (totalTowerWidth > vw) {
+                towerWidth = Math.floor((vw - (towerCount-1)*towerGap) / towerCount);
+                turtleWidth = Math.floor(towerWidth * 0.9);
+                turtleHeight = Math.floor(turtleWidth / 1.8);
+                turtleFont = Math.floor(turtleHeight * 0.45 + 6);
+            }
+
+            // 塔高度以乌龟高度为准
+            towerBodyHeight = n * turtleHeight + (n-1)*margin;
+            towerHeight = towerBodyHeight + labelHeight;
+
+            return {
+                turtleWidth, turtleHeight, turtleFont, margin, labelHeight, towerHeight, towerWidth
+            };
         }
 
+        // 生成初始塔，A柱乌龟有大小区分
         function createTowers(n) {
             towers = { 'A': [], 'B': [], 'C': [] };
+            // 让A柱乌龟从大到小，底部最大，顶部最小
             for (let i = n; i >= 1; i--) {
-                towers['A'].push(i);
+                // 每只乌龟用对象表示，包含编号和大小比例
+                let sizeRatio = 0.7 + 0.3 * (i-1)/(n-1); // 最小0.7，最大1.0
+                if (n === 1) sizeRatio = 1.0;
+                towers['A'].push({num: i, size: sizeRatio});
             }
         }
 
-        // 更精致的乌龟SVG生成函数
-        function getTurtleSVG(size, color) {
+        // 精致乌龟SVG，支持不同大小
+        function getTurtleSVG(turtleObj, color) {
             let shellColor = color || "#8bc34a";
             let bodyColor = "#388e3c";
-            // 让乌龟大小差异更明显
-            let scale = 0.7 + (size / n) * 0.8;
+            // turtleObj.size: 0.7~1.0
+            let scale = turtleObj && turtleObj.size ? turtleObj.size : 1;
             return `
             <svg class="turtle-svg" viewBox="0 0 90 54" style="transform:scale(${scale});">
                 <ellipse cx="45" cy="48" rx="22" ry="6" fill="#b2dfdb88"/>
@@ -513,7 +485,7 @@
                     <ellipse cx="63" cy="21" rx="0.8" ry="1.3" fill="#795548"/>
                     <ellipse cx="69" cy="21" rx="0.8" ry="1.3" fill="#795548"/>
                 </g>
-                <ellipse cx="45" cy="28" rx="26" ry="16" fill="url(#shellGrad${size})" stroke="#333" stroke-width="2.2"/>
+                <ellipse cx="45" cy="28" rx="26" ry="16" fill="url(#shellGrad${turtleObj ? turtleObj.num : ''})" stroke="#333" stroke-width="2.2"/>
                 <ellipse cx="45" cy="28" rx="20" ry="12" fill="#fffde7" opacity="0.25"/>
                 <ellipse cx="45" cy="28" rx="12" ry="7" fill="#fffde7" opacity="0.18"/>
                 <g opacity="0.45">
@@ -530,7 +502,7 @@
                 <ellipse cx="50.5" cy="13" rx="1.2" ry="0.7" fill="#ffb6b6" opacity="0.7"/>
                 <path d="M43.5,13 Q45,15 46.5,13" stroke="#ad1457" stroke-width="1.2" fill="none" stroke-linecap="round"/>
                 <defs>
-                    <radialGradient id="shellGrad${size}" cx="50%" cy="45%" r="70%">
+                    <radialGradient id="shellGrad${turtleObj ? turtleObj.num : ''}" cx="50%" cy="45%" r="70%">
                         <stop offset="0%" stop-color="#fffde7" stop-opacity="0.7"/>
                         <stop offset="60%" stop-color="${shellColor}" stop-opacity="1"/>
                         <stop offset="100%" stop-color="#5d4037" stop-opacity="0.7"/>
@@ -540,46 +512,17 @@
             `;
         }
 
-        // 动态设置塔和游戏区高度
+        // 设置塔和游戏区尺寸
         function setTowerAndGameHeight(n) {
-            // 以大屏为基准
-            let baseTurtleHeight = 44, baseTurtleMargin = 4, baseLabel = 36;
-            let towerHeight = n * baseTurtleHeight + (n-1)*baseTurtleMargin + baseLabel;
-            let gameHeight = towerHeight + 20;
-            // 响应式下缩放
-            if (window.innerWidth <= 900) {
-                baseTurtleHeight = 18;
-                baseTurtleMargin = 2;
-                baseLabel = 28;
-                // 手机端优化：塔身高度至少按3层算
-                let nForHeight = Math.max(n, 3);
-                towerHeight = nForHeight * baseTurtleHeight + (nForHeight-1)*baseTurtleMargin + baseLabel;
-                gameHeight = towerHeight + 10;
-            }
-            if (window.innerWidth <= 600) {
-                // 以vw为单位，保证在极小屏幕下也能显示
-                let vw = Math.max(window.innerWidth, 320) / 100;
-                baseTurtleHeight = 8 * vw;
-                baseTurtleMargin = 1 * vw;
-                baseLabel = 18;
-                let nForHeight = Math.max(n, 3);
-                towerHeight = nForHeight * baseTurtleHeight + (nForHeight-1)*baseTurtleMargin + baseLabel;
-                gameHeight = towerHeight + 4;
-            }
-            if (window.innerWidth <= 400) {
-                let vw = Math.max(window.innerWidth, 240) / 100;
-                baseTurtleHeight = 6 * vw;
-                baseTurtleMargin = 0.7 * vw;
-                baseLabel = 12;
-                let nForHeight = Math.max(n, 3);
-                towerHeight = nForHeight * baseTurtleHeight + (nForHeight-1)*baseTurtleMargin + baseLabel;
-                gameHeight = towerHeight + 2;
-            }
-            document.querySelectorAll('.tower').forEach(t => t.style.height = towerHeight + 'px');
-            document.getElementById('game').style.height = gameHeight + 'px';
+            let {towerHeight, towerWidth} = fixedTurtleSize;
+            document.querySelectorAll('.tower').forEach(t => {
+                t.style.height = towerHeight + 'px';
+                t.style.width = towerWidth + 'px';
+            });
+            document.getElementById('game').style.height = towerHeight + 'px';
         }
 
-        // 渲染函数，所有柱子乌龟尺寸都用fixedTurtleSize
+        // 渲染函数
         function render() {
             const gameDiv = document.getElementById('game');
             gameDiv.innerHTML = '';
@@ -587,8 +530,7 @@
                 '#8bc34a', '#4caf50', '#cddc39', '#ffb347', '#ffcc33', '#b388ff', '#40c4ff', '#ffab91',
                 '#a5d6a7', '#ffd54f', '#f48fb1', '#90caf9'
             ];
-            // 计算塔高度和label高度
-            let {turtleWidth, turtleHeight, turtleFont, margin, labelHeight, towerHeight} = fixedTurtleSize;
+            let {turtleWidth, turtleHeight, turtleFont, margin, labelHeight, towerHeight, towerWidth} = fixedTurtleSize;
 
             // 渲染塔
             let towerDivs = [];
@@ -596,6 +538,8 @@
                 const towerDiv = document.createElement('div');
                 towerDiv.className = 'tower';
                 towerDiv.dataset.tower = name;
+                towerDiv.style.width = towerWidth + 'px';
+                towerDiv.style.height = towerHeight + 'px';
                 towerDiv.onclick = () => {
                     if (autoDemoRunning) {
                         autoDemoAbort = true;
@@ -606,27 +550,33 @@
 
                 // 填充乌龟
                 for (let i = 0; i < towers[name].length; i++) {
-                    const turtle = towers[name][i];
+                    const turtleObj = towers[name][i];
                     const turtleDiv = document.createElement('div');
                     turtleDiv.className = 'turtle';
-                    turtleDiv.style.setProperty('--turtle-width', turtleWidth + 'px');
-                    turtleDiv.style.setProperty('--turtle-height', turtleHeight + 'px');
-                    turtleDiv.style.setProperty('--turtle-font', turtleFont + 'px');
+                    // 让每只乌龟的宽高根据其size缩放
+                    let scale = turtleObj && turtleObj.size ? turtleObj.size : 1;
+                    turtleDiv.style.width = (turtleWidth * scale) + 'px';
+                    turtleDiv.style.height = (turtleHeight * scale) + 'px';
+                    turtleDiv.style.fontSize = (turtleFont * scale) + 'px';
+                    turtleDiv.style.lineHeight = (turtleHeight * scale) + 'px';
                     turtleDiv.style.marginBottom = (i === towers[name].length - 1 ? "0px" : margin + "px");
+                    turtleDiv.style.marginLeft = ((turtleWidth - turtleWidth * scale) / 2) + "px";
+                    turtleDiv.style.marginRight = ((turtleWidth - turtleWidth * scale) / 2) + "px";
                     if (selectedTower === name && i === towers[name].length - 1) {
                         turtleDiv.classList.add('selected');
                     }
-                    let color = turtleColors[(turtle-1)%turtleColors.length];
-                    turtleDiv.innerHTML = getTurtleSVG(turtle, color) + `<div class="turtle-num">${turtle}</div>`;
+                    let color = turtleColors[((turtleObj.num ? turtleObj.num : 1)-1)%turtleColors.length];
+                    turtleDiv.innerHTML = getTurtleSVG(turtleObj, color) + `<div class="turtle-num" style="font-size:${turtleFont * scale}px;">${turtleObj.num ? turtleObj.num : ''}</div>`;
                     towerDiv.appendChild(turtleDiv);
                 }
-                // 填充空位（透明div用于撑满塔身，保证塔高度一致）
+                // 填充空位
                 for (let i = towers[name].length; i < n; i++) {
                     const emptyDiv = document.createElement('div');
                     emptyDiv.className = 'turtle';
-                    emptyDiv.style.setProperty('--turtle-width', turtleWidth + 'px');
-                    emptyDiv.style.setProperty('--turtle-height', turtleHeight + 'px');
-                    emptyDiv.style.setProperty('--turtle-font', turtleFont + 'px');
+                    emptyDiv.style.width = turtleWidth + 'px';
+                    emptyDiv.style.height = turtleHeight + 'px';
+                    emptyDiv.style.fontSize = turtleFont + 'px';
+                    emptyDiv.style.lineHeight = turtleHeight + 'px';
                     emptyDiv.style.opacity = '0';
                     emptyDiv.style.marginBottom = (i === n - 1 ? "0px" : margin + "px");
                     towerDiv.appendChild(emptyDiv);
@@ -635,21 +585,18 @@
                 gameDiv.appendChild(towerDiv);
             });
 
-            // 渲染ABC字母在塔下方，确保和每个柱子对齐
+            // 渲染ABC字母
             const labelRow = document.getElementById('tower-label-row');
             labelRow.innerHTML = '';
-            // 让label和tower一一对应，宽度一致
             document.querySelectorAll('.tower').forEach((towerDiv, idx) => {
                 const label = document.createElement('div');
                 label.className = 'tower-label';
                 label.textContent = ['A', 'B', 'C'][idx];
-                // 让label宽度和tower一致
-                label.style.width = window.getComputedStyle(towerDiv).width;
+                label.style.width = towerWidth + 'px';
                 labelRow.appendChild(label);
             });
 
             document.getElementById('steps').textContent = `步数: ${steps}`;
-            // 显示游戏次数
             document.getElementById('game-count').textContent = `游戏次数: ${gameCount}`;
             setTowerAndGameHeight(n);
         }
@@ -684,14 +631,15 @@
                     render();
                     return;
                 }
-                let turtle = towers[source][towers[source].length - 1];
-                if (towers[target].length === 0 || towers[target][towers[target].length - 1] > turtle) {
+                let turtleObj = towers[source][towers[source].length - 1];
+                let turtleNum = turtleObj.num;
+                // 判断目标堆顶部乌龟大小
+                if (towers[target].length === 0 || towers[target][towers[target].length - 1].num > turtleNum) {
                     towers[source].pop();
-                    towers[target].push(turtle);
+                    towers[target].push(turtleObj);
                     steps += 1;
                     showMessage('');
                     if (towers['C'].length === n) {
-                        // 游戏完成，计数+1
                         if (window.localStorage) {
                             gameCount += 1;
                             localStorage.setItem('stack_turtles_game_count', gameCount);
@@ -718,7 +666,6 @@
             steps = 0;
             selectedTower = null;
             createTowers(n);
-            // 计算固定乌龟尺寸
             fixedTurtleSize = calcFixedTurtleSize(n);
             showMessage('');
             render();
@@ -758,9 +705,9 @@
                 selectedTower = from;
                 render();
                 await new Promise(r => setTimeout(r, Math.max(5, speed/2)));
-                let turtle = towers[from][towers[from].length - 1];
+                let turtleObj = towers[from][towers[from].length - 1];
                 towers[from].pop();
-                towers[to].push(turtle);
+                towers[to].push(turtleObj);
                 steps += 1;
                 selectedTower = null;
                 render();
@@ -769,7 +716,6 @@
             selectedTower = null;
             render();
             if (!autoDemoAbort && towers['C'].length === n) {
-                // 自动演示完成也计数
                 if (window.localStorage) {
                     gameCount += 1;
                     localStorage.setItem('stack_turtles_game_count', gameCount);
@@ -793,6 +739,8 @@
                 speedValue.textContent = label;
             }
             speedSelect.onchange = updateSpeedLabel;
+            // 默认选中“中等”
+            speedSelect.value = "500";
             updateSpeedLabel();
 
             // 说明按钮折叠
@@ -814,8 +762,6 @@
             let val = parseInt(this.value) || 3;
             if (val < 2) val = 2;
             if (val > 8) val = 8;
-            setTowerAndGameHeight(val);
-            // 重新计算固定乌龟尺寸（仅用于预览高度，不影响游戏中乌龟尺寸）
             fixedTurtleSize = calcFixedTurtleSize(val);
             render();
         });
