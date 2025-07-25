@@ -1,0 +1,606 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>叠乌龟游戏</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'HarmonyOS Sans', '微软雅黑', Arial, sans-serif;
+            background: linear-gradient(135deg, #e0f7fa 0%, #fffde7 100%);
+            min-height: 100vh;
+            margin: 0;
+            /* 新增柔光背景 */
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            left: 0; top: 0; right: 0; bottom: 0;
+            z-index: -1;
+            background: radial-gradient(circle at 80% 20%, #b2dfdb55 0%, transparent 60%),
+                        radial-gradient(circle at 20% 80%, #ffd54f55 0%, transparent 60%),
+                        radial-gradient(circle at 50% 50%, #b388ff33 0%, transparent 70%);
+            pointer-events: none;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.9em;
+            letter-spacing: 0.13em;
+            color: #388e3c;
+            margin-top: 38px;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 18px #b2dfdb, 0 1px 0 #fffde7;
+            font-family: 'ZCOOL KuaiLe', 'HarmonyOS Sans', '微软雅黑', Arial, sans-serif;
+            user-select: none;
+        }
+        #instructions {
+            max-width: 700px;
+            margin: 28px auto 0 auto;
+            background: rgba(255,255,255,0.98);
+            border: 2.5px solid #b2dfdb;
+            border-radius: 18px;
+            padding: 26px 38px 18px 38px;
+            font-size: 18px;
+            color: #444;
+            line-height: 2.0;
+            box-shadow: 0 8px 32px #b2dfdb44, 0 1.5px 0 #fffde7;
+            position: relative;
+        }
+        /* 署名样式 */
+        .signature-footer {
+            text-align: center;
+            margin: 38px 0 18px 0;
+            opacity: 0.85;
+            font-size: 1.15em;
+            color: #b388ff;
+            font-family: 'ZCOOL KuaiLe','HarmonyOS Sans','微软雅黑',Arial,sans-serif;
+            letter-spacing: 0.18em;
+            user-select: none;
+        }
+        #instructions ul {
+            margin: 12px 0 0 28px;
+        }
+        #instructions li {
+            margin-bottom: 2px;
+        }
+        /* 游戏主界面整体容器，包含ABC和步数 */
+        #main-game-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 24px;
+            margin-bottom: 0;
+            background: rgba(255,255,255,0.85);
+            border-radius: 18px;
+            box-shadow: 0 4px 24px #b2dfdb33;
+            padding: 18px 0 10px 0;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #game {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            height: 390px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            gap: 48px;
+            padding: 0 18px;
+        }
+        .tower {
+            width: 150px;
+            height: 320px;
+            margin: 0 16px;
+            background: linear-gradient(180deg, #e0e0e0 60%, #b2dfdb 100%);
+            border-radius: 28px 28px 0 0;
+            position: relative;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            box-shadow: 0 12px 32px #b2dfdb55, 0 1.5px 0 #fffde7;
+            border: 3.5px solid #80cbc4;
+            transition: box-shadow 0.2s, border 0.2s;
+            overflow: visible;
+        }
+        .tower:hover {
+            box-shadow: 0 16px 48px #26a69a55, 0 1.5px 0 #fffde7;
+            border-color: #26a69a;
+        }
+        .tower-label {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 12px;
+            font-size: 1.6em;
+            color: #388e3c;
+            letter-spacing: 0.15em;
+            text-shadow: 0 2px 8px #b2dfdb88, 0 1px 0 #fffde7;
+            font-family: 'ZCOOL KuaiLe', 'HarmonyOS Sans', '微软雅黑', Arial, sans-serif;
+            user-select: none;
+        }
+        .turtle {
+            height: 58px;
+            margin-bottom: 8px;
+            border-radius: 22px;
+            background: linear-gradient(90deg, #fffde7 0%, #e0f7fa 100%);
+            color: #333;
+            text-align: center;
+            line-height: 58px;
+            font-weight: bold;
+            font-size: 24px;
+            box-shadow: 0 4px 16px #b2dfdb88, 0 1.5px 0 #fffde7;
+            cursor: pointer;
+            transition: box-shadow 0.2s, border 0.2s, transform 0.15s, background 0.2s;
+            position: relative;
+            width: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            border: 2.5px solid #fffde7;
+        }
+        .turtle.selected {
+            border: 4px solid #1976d2;
+            box-shadow: 0 0 28px #1976d2cc, 0 4px 16px #b2dfdb88;
+            transform: scale(1.11) translateY(-7px);
+            background: linear-gradient(90deg, #e3f2fd 0%, #fffde7 100%);
+        }
+        .turtle:hover:not(.selected) {
+            box-shadow: 0 0 18px #26a69a99, 0 4px 16px #b2dfdb88;
+            transform: scale(1.06);
+            background: linear-gradient(90deg, #fffde7 0%, #b2dfdb 100%);
+        }
+        #controls {
+            text-align: center;
+            margin-top: 22px;
+            font-size: 1.15em;
+            background: rgba(255,255,255,0.85);
+            border-radius: 10px;
+            box-shadow: 0 2px 8px #b2dfdb33;
+            padding: 10px 0 8px 0;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #message {
+            text-align: center;
+            color: #d32f2f;
+            font-size: 22px;
+            min-height: 32px;
+            margin-top: 12px;
+            font-weight: bold;
+            letter-spacing: 0.07em;
+            text-shadow: 0 1px 4px #fffde7cc;
+        }
+        #steps {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 0;
+            font-size: 22px;
+            color: #388e3c;
+            font-weight: bold;
+            letter-spacing: 0.09em;
+            text-shadow: 0 1px 4px #fffde7cc;
+        }
+        #reset-btn, #start-btn, #auto-demo-btn {
+            margin-left: 10px;
+            background: linear-gradient(90deg, #b2dfdb 0%, #81c784 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 8px 22px;
+            font-size: 1.08em;
+            font-weight: bold;
+            color: #222;
+            box-shadow: 0 2px 8px #b2dfdb55;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.13s;
+            outline: none;
+        }
+        #reset-btn:hover, #start-btn:hover, #auto-demo-btn:hover {
+            background: linear-gradient(90deg, #81c784 0%, #b2dfdb 100%);
+            box-shadow: 0 6px 18px #26a69a55;
+            transform: translateY(-2px) scale(1.04);
+        }
+        #input-n {
+            width: 54px;
+            font-size: 1.08em;
+            border-radius: 7px;
+            border: 2px solid #b2dfdb;
+            padding: 4px 8px;
+            margin-right: 6px;
+            text-align: center;
+            background: #fffde7;
+            box-shadow: 0 1px 4px #b2dfdb22;
+            transition: border 0.2s;
+        }
+        #input-n:focus {
+            border-color: #388e3c;
+            outline: none;
+        }
+        /* 礼花canvas覆盖层样式（已禁用） */
+        #fireworks-canvas {
+            display: none !important;
+        }
+        /* 虚化层（已禁用） */
+        #blur-overlay {
+            display: none !important;
+        }
+        /* 乌龟SVG样式 */
+        .turtle-svg {
+            width: 98px;
+            height: 58px;
+            display: block;
+            filter: drop-shadow(0 2px 10px #b2dfdb88);
+        }
+        .turtle-num {
+            position: absolute;
+            left: 0; right: 0; top: 0; bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            font-weight: bold;
+            color: #333;
+            pointer-events: none;
+            text-shadow: 0 1px 4px #fffde7cc, 0 0px 2px #388e3c88;
+            font-family: 'ZCOOL KuaiLe', 'HarmonyOS Sans', '微软雅黑', Arial, sans-serif;
+        }
+        /* 自动演示按钮样式 */
+        #auto-demo-btn { margin-left: 10px; }
+        #speed-label { margin-left: 22px; }
+        #speed-range {
+            width: 120px;
+            vertical-align: middle;
+            accent-color: #388e3c;
+            border-radius: 6px;
+            border: 1.5px solid #b2dfdb;
+            background: #fffde7;
+            font-size: 1em;
+            padding: 2px 4px;
+        }
+        #speed-value {
+            margin-left: 6px;
+            color: #388e3c;
+            font-weight: bold;
+            font-size: 1em;
+        }
+        /* 响应式 */
+        @media (max-width: 1100px) {
+            #main-game-area, #controls { max-width: 99vw; }
+            #game { gap: 18px; }
+            .tower { width: 100px; height: 180px; }
+            .turtle { width: 60px; height: 32px; font-size: 14px; line-height: 32px; }
+            .turtle-svg { width: 48px; height: 32px; }
+            .tower-label { font-size: 1em; }
+        }
+        @media (max-width: 700px) {
+            #instructions { padding: 10px 4vw; }
+            #main-game-area { margin-top: 8px; }
+            #game { gap: 2px; height: 90px; }
+            .tower { width: 44px; height: 60px; }
+            .turtle { width: 28px; height: 14px; font-size: 8px; line-height: 14px; }
+            .turtle-svg { width: 20px; height: 14px; }
+            .tower-label { font-size: 0.7em; }
+            #steps { font-size: 12px; }
+            #controls { font-size: 0.9em; }
+        }
+        @media (max-width: 500px) {
+            h1 { font-size: 1.5em; }
+            #instructions { font-size: 13px; }
+        }
+        /* 引入可爱字体 */
+        @import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap');
+    </style>
+</head>
+<body>
+    <h1>叠乌龟游戏</h1>
+    <div id="instructions">
+        <b>游戏说明：</b><br>
+        叠乌龟是一种经典的益智游戏。目标是将所有乌龟从左侧的乌龟堆（A）移动到右侧的乌龟堆（C），每次只能移动一个乌龟，并且大乌龟不能叠在小乌龟上面。<br>
+        <ul>
+            <li>点击一个有乌龟的堆选中顶部乌龟，再点击另一个堆完成移动。</li>
+            <li>每次只能移动最上面的乌龟。</li>
+            <li>不能将大乌龟叠在小乌龟上。</li>
+            <li>你可以选择层数，挑战更高难度！</li>
+            <li>点击“自动演示”可观看自动解法过程，速度可调。</li>
+        </ul>
+        <span style="color:#888;">祝你玩得开心！</span>
+    </div>
+    <div id="controls">
+        层数: <input id="input-n" type="number" min="2" max="8" value="3">
+        <button id="start-btn">开始游戏</button>
+        <button id="reset-btn">重置</button>
+        <button id="auto-demo-btn" style="margin-left:10px;">自动演示</button>
+        <span id="speed-label">
+            速度: 
+            <select id="speed-range">
+                <option value="10">极速</option>
+                <option value="100">很快</option>
+                <option value="500">中等</option>
+                <option value="1000">较慢</option>
+                <option value="2000">很慢</option>
+            </select>
+            <span id="speed-value">中等</span>
+        </span>
+    </div>
+    <div id="main-game-area">
+        <div id="game"></div>
+        <div id="steps"></div>
+    </div>
+    <div id="message"></div>
+    <div id="blur-overlay"></div>
+    <canvas id="fireworks-canvas"></canvas>
+    <div class="signature-footer">
+        © 胖墩会武术
+    </div>
+    <script>
+        let towers, n, steps, selectedTower = null;
+        let autoDemoRunning = false;
+        let autoDemoAbort = false;
+
+        // --- 礼花特效相关（已禁用） ---
+        const fireworks = { start() {}, stop() {} };
+
+        function createTowers(n) {
+            towers = { 'A': [], 'B': [], 'C': [] };
+            for (let i = n; i >= 1; i--) {
+                towers['A'].push(i);
+            }
+        }
+
+        // 更精致的乌龟SVG生成函数
+        function getTurtleSVG(size, color) {
+            // size: 1~n, color: string
+            // 颜色可根据size变化
+            let shellColor = color || "#8bc34a";
+            let bodyColor = "#388e3c";
+            let scale = 1 + (size-1)*0.13;
+            // 让大乌龟更大
+            // 精致细节：花纹、腮红、嘴巴、爪子、阴影
+            return `
+            <svg class="turtle-svg" viewBox="0 0 90 54" style="transform:scale(${scale});">
+                <!-- 阴影 -->
+                <ellipse cx="45" cy="48" rx="22" ry="6" fill="#b2dfdb88"/>
+                <!-- 四肢（带爪子） -->
+                <g>
+                    <ellipse cx="18" cy="40" rx="7" ry="4" fill="${bodyColor}" stroke="#2e7d32" stroke-width="2"/>
+                    <ellipse cx="72" cy="40" rx="7" ry="4" fill="${bodyColor}" stroke="#2e7d32" stroke-width="2"/>
+                    <ellipse cx="24" cy="18" rx="5" ry="2.5" fill="${bodyColor}" stroke="#2e7d32" stroke-width="2"/>
+                    <ellipse cx="66" cy="18" rx="5" ry="2.5" fill="${bodyColor}" stroke="#2e7d32" stroke-width="2"/>
+                    <!-- 爪子 -->
+                    <ellipse cx="14" cy="44" rx="1.1" ry="2" fill="#795548"/>
+                    <ellipse cx="22" cy="44" rx="1.1" ry="2" fill="#795548"/>
+                    <ellipse cx="68" cy="44" rx="1.1" ry="2" fill="#795548"/>
+                    <ellipse cx="76" cy="44" rx="1.1" ry="2" fill="#795548"/>
+                    <ellipse cx="21" cy="21" rx="0.8" ry="1.3" fill="#795548"/>
+                    <ellipse cx="27" cy="21" rx="0.8" ry="1.3" fill="#795548"/>
+                    <ellipse cx="63" cy="21" rx="0.8" ry="1.3" fill="#795548"/>
+                    <ellipse cx="69" cy="21" rx="0.8" ry="1.3" fill="#795548"/>
+                </g>
+                <!-- 壳 -->
+                <ellipse cx="45" cy="28" rx="26" ry="16" fill="url(#shellGrad${size})" stroke="#333" stroke-width="2.2"/>
+                <ellipse cx="45" cy="28" rx="20" ry="12" fill="#fffde7" opacity="0.25"/>
+                <ellipse cx="45" cy="28" rx="12" ry="7" fill="#fffde7" opacity="0.18"/>
+                <!-- 花纹 -->
+                <g opacity="0.45">
+                    <ellipse cx="45" cy="28" rx="8" ry="4.5" fill="none" stroke="#fffde7" stroke-width="2"/>
+                    <ellipse cx="45" cy="28" rx="15" ry="9" fill="none" stroke="#fffde7" stroke-width="1.2"/>
+                    <ellipse cx="45" cy="28" rx="22" ry="13" fill="none" stroke="#fffde7" stroke-width="0.8"/>
+                </g>
+                <!-- 头 -->
+                <ellipse cx="45" cy="10" rx="9" ry="8" fill="${bodyColor}" stroke="#2e7d32" stroke-width="2"/>
+                <!-- 眼睛 -->
+                <ellipse cx="42" cy="8.5" rx="1.7" ry="1.7" fill="#222"/>
+                <ellipse cx="48" cy="8.5" rx="1.7" ry="1.7" fill="#222"/>
+                <!-- 眼白高光 -->
+                <ellipse cx="41.5" cy="8" rx="0.5" ry="0.5" fill="#fff"/>
+                <ellipse cx="47.5" cy="8" rx="0.5" ry="0.5" fill="#fff"/>
+                <!-- 腮红 -->
+                <ellipse cx="39.5" cy="13" rx="1.2" ry="0.7" fill="#ffb6b6" opacity="0.7"/>
+                <ellipse cx="50.5" cy="13" rx="1.2" ry="0.7" fill="#ffb6b6" opacity="0.7"/>
+                <!-- 嘴巴 -->
+                <path d="M43.5,13 Q45,15 46.5,13" stroke="#ad1457" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+                <!-- SVG渐变定义 -->
+                <defs>
+                    <radialGradient id="shellGrad${size}" cx="50%" cy="45%" r="70%">
+                        <stop offset="0%" stop-color="#fffde7" stop-opacity="0.7"/>
+                        <stop offset="60%" stop-color="${shellColor}" stop-opacity="1"/>
+                        <stop offset="100%" stop-color="#5d4037" stop-opacity="0.7"/>
+                    </radialGradient>
+                </defs>
+            </svg>
+            `;
+        }
+
+        function render() {
+            const gameDiv = document.getElementById('game');
+            gameDiv.innerHTML = '';
+            // 更丰富的配色
+            const turtleColors = [
+                '#8bc34a', '#4caf50', '#cddc39', '#ffb347', '#ffcc33', '#b388ff', '#40c4ff', '#ffab91',
+                '#a5d6a7', '#ffd54f', '#f48fb1', '#90caf9'
+            ];
+            ['A', 'B', 'C'].forEach(name => {
+                const towerDiv = document.createElement('div');
+                towerDiv.className = 'tower';
+                towerDiv.dataset.tower = name;
+                towerDiv.onclick = () => {
+                    if (autoDemoRunning) {
+                        autoDemoAbort = true;
+                        return;
+                    }
+                    onTowerClick(name);
+                };
+                // 画乌龟
+                towers[name].forEach((turtle, idx) => {
+                    const turtleDiv = document.createElement('div');
+                    turtleDiv.className = 'turtle';
+                    if (selectedTower === name && idx === towers[name].length - 1) {
+                        turtleDiv.classList.add('selected');
+                    }
+                    // 颜色根据size
+                    let color = turtleColors[(turtle-1)%turtleColors.length];
+                    turtleDiv.innerHTML = getTurtleSVG(turtle, color) + `<div class="turtle-num">${turtle}</div>`;
+                    towerDiv.appendChild(turtleDiv);
+                });
+                // 填充空白
+                for (let i = towers[name].length; i < n; i++) {
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.style.height = '58px';
+                    emptyDiv.style.width = '100%';
+                    emptyDiv.style.opacity = '0';
+                    towerDiv.appendChild(emptyDiv);
+                }
+                // 标签
+                const label = document.createElement('div');
+                label.className = 'tower-label';
+                label.textContent = name;
+                towerDiv.appendChild(label);
+                gameDiv.appendChild(towerDiv);
+            });
+            document.getElementById('steps').textContent = `步数: ${steps}`;
+        }
+
+        function showMessage(msg, color='#d32f2f') {
+            const msgDiv = document.getElementById('message');
+            msgDiv.textContent = msg;
+            msgDiv.style.color = color;
+        }
+
+        function onTowerClick(name) {
+            if (n === undefined) return;
+            if (autoDemoRunning) return;
+            if (selectedTower === null) {
+                // 选中源堆
+                if (towers[name].length === 0) {
+                    showMessage(`⚠️ ${name} 没有乌龟可选`);
+                    return;
+                }
+                selectedTower = name;
+                showMessage(`已选中 ${name}，请选择目标堆`);
+            } else {
+                if (selectedTower === name) {
+                    selectedTower = null;
+                    showMessage('');
+                    render();
+                    return;
+                }
+                // 尝试移动
+                let source = selectedTower, target = name;
+                if (towers[source].length === 0) {
+                    showMessage(`⚠️ 源堆 ${source} 没有乌龟！`);
+                    selectedTower = null;
+                    render();
+                    return;
+                }
+                let turtle = towers[source][towers[source].length - 1];
+                if (towers[target].length === 0 || towers[target][towers[target].length - 1] > turtle) {
+                    towers[source].pop();
+                    towers[target].push(turtle);
+                    steps += 1;
+                    showMessage('');
+                    // 检查胜利
+                    if (towers['C'].length === n) {
+                        render();
+                        showMessage(`🎉 恭喜！你用了 ${steps} 步完成叠乌龟！`, '#388e3c');
+                        n = undefined; // 禁止继续操作
+                        return;
+                    }
+                } else {
+                    showMessage(`⚠️ 无法移动：目标堆 ${target} 的顶部乌龟比当前小！`);
+                }
+                selectedTower = null;
+            }
+            render();
+        }
+
+        function startGame() {
+            n = parseInt(document.getElementById('input-n').value) || 3;
+            if (n < 2) n = 2;
+            if (n > 8) n = 8;
+            steps = 0;
+            selectedTower = null;
+            createTowers(n);
+            showMessage('');
+            render();
+            fireworks.stop();
+            autoDemoAbort = true;
+            autoDemoRunning = false;
+            document.getElementById('auto-demo-btn').textContent = "自动演示";
+        }
+
+        // 汉诺塔递归解法，返回步骤序列
+        function hanoiMoves(num, from, via, to, moves) {
+            if (num === 0) return;
+            hanoiMoves(num-1, from, to, via, moves);
+            moves.push([from, to]);
+            hanoiMoves(num-1, via, from, to, moves);
+        }
+
+        // 自动演示功能
+        async function autoDemo() {
+            if (autoDemoRunning) {
+                autoDemoAbort = true;
+                return;
+            }
+            startGame();
+            autoDemoRunning = true;
+            autoDemoAbort = false;
+            document.getElementById('auto-demo-btn').textContent = "停止演示";
+            selectedTower = null;
+            render();
+
+            // 速度档位
+            let speedSelect = document.getElementById('speed-range');
+            let speed = parseInt(speedSelect.value) || 500;
+            let moves = [];
+            hanoiMoves(n, 'A', 'B', 'C', moves);
+
+            for (let i = 0; i < moves.length; i++) {
+                if (autoDemoAbort) break;
+                let [from, to] = moves[i];
+                selectedTower = from;
+                render();
+                await new Promise(r => setTimeout(r, Math.max(5, speed/2)));
+                let turtle = towers[from][towers[from].length - 1];
+                towers[from].pop();
+                towers[to].push(turtle);
+                steps += 1;
+                selectedTower = null;
+                render();
+                await new Promise(r => setTimeout(r, speed));
+            }
+            selectedTower = null;
+            render();
+            if (!autoDemoAbort && towers['C'].length === n) {
+                showMessage(`🎉 自动演示完成！共 ${steps} 步。`, '#388e3c');
+            }
+            autoDemoRunning = false;
+            autoDemoAbort = false;
+            document.getElementById('auto-demo-btn').textContent = "自动演示";
+        }
+
+        // 速度档位显示
+        document.addEventListener('DOMContentLoaded', function() {
+            let speedSelect = document.getElementById('speed-range');
+            let speedValue = document.getElementById('speed-value');
+            function updateSpeedLabel() {
+                let label = speedSelect.options[speedSelect.selectedIndex].text;
+                speedValue.textContent = label;
+            }
+            speedSelect.onchange = updateSpeedLabel;
+            updateSpeedLabel();
+        });
+
+        document.getElementById('start-btn').onclick = startGame;
+        document.getElementById('reset-btn').onclick = startGame;
+        document.getElementById('auto-demo-btn').onclick = autoDemo;
+
+        // 初始化
+        startGame();
+    </script>
+</body>
+</html>
