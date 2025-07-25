@@ -437,11 +437,17 @@
             let baseTurtleHeight = 44, baseTurtleMargin = 4, baseLabel = 36;
             let towerHeight = n * baseTurtleHeight + (n-1)*baseTurtleMargin + baseLabel;
             let labelHeight = baseLabel;
+            // ----------- 修改开始 -----------
+            // 手机端优化：当n较小时，塔身高度仍然按最大3层来算，保证乌龟能填满塔身
+            let minNForHeight = 3;
+            let nForHeight = n;
             if (window.innerWidth <= 900) {
                 baseTurtleHeight = 18;
                 baseTurtleMargin = 2;
                 baseLabel = 28;
-                towerHeight = n * baseTurtleHeight + (n-1)*baseTurtleMargin + baseLabel;
+                minNForHeight = 3;
+                nForHeight = Math.max(n, minNForHeight);
+                towerHeight = nForHeight * baseTurtleHeight + (nForHeight-1)*baseTurtleMargin + baseLabel;
                 labelHeight = baseLabel;
             }
             if (window.innerWidth <= 600) {
@@ -449,7 +455,9 @@
                 baseTurtleHeight = 8 * vw;
                 baseTurtleMargin = 1 * vw;
                 baseLabel = 18;
-                towerHeight = n * baseTurtleHeight + (n-1)*baseTurtleMargin + baseLabel;
+                minNForHeight = 3;
+                nForHeight = Math.max(n, minNForHeight);
+                towerHeight = nForHeight * baseTurtleHeight + (nForHeight-1)*baseTurtleMargin + baseLabel;
                 labelHeight = baseLabel;
             }
             if (window.innerWidth <= 400) {
@@ -457,7 +465,9 @@
                 baseTurtleHeight = 6 * vw;
                 baseTurtleMargin = 0.7 * vw;
                 baseLabel = 12;
-                towerHeight = n * baseTurtleHeight + (n-1)*baseTurtleMargin + baseLabel;
+                minNForHeight = 3;
+                nForHeight = Math.max(n, minNForHeight);
+                towerHeight = nForHeight * baseTurtleHeight + (nForHeight-1)*baseTurtleMargin + baseLabel;
                 labelHeight = baseLabel;
             }
             // 塔身高度 = towerHeight - labelHeight
@@ -470,6 +480,7 @@
             let turtleWidth = turtleHeight * 1.8;
             let turtleFont = turtleHeight * 0.4 + 6;
             return {turtleWidth, turtleHeight, turtleFont, margin, labelHeight, towerHeight};
+            // ----------- 修改结束 -----------
         }
 
         function createTowers(n) {
@@ -540,7 +551,9 @@
                 baseTurtleHeight = 18;
                 baseTurtleMargin = 2;
                 baseLabel = 28;
-                towerHeight = n * baseTurtleHeight + (n-1)*baseTurtleMargin + baseLabel;
+                // 手机端优化：塔身高度至少按3层算
+                let nForHeight = Math.max(n, 3);
+                towerHeight = nForHeight * baseTurtleHeight + (nForHeight-1)*baseTurtleMargin + baseLabel;
                 gameHeight = towerHeight + 10;
             }
             if (window.innerWidth <= 600) {
@@ -549,8 +562,18 @@
                 baseTurtleHeight = 8 * vw;
                 baseTurtleMargin = 1 * vw;
                 baseLabel = 18;
-                towerHeight = n * baseTurtleHeight + (n-1)*baseTurtleMargin + baseLabel;
+                let nForHeight = Math.max(n, 3);
+                towerHeight = nForHeight * baseTurtleHeight + (nForHeight-1)*baseTurtleMargin + baseLabel;
                 gameHeight = towerHeight + 4;
+            }
+            if (window.innerWidth <= 400) {
+                let vw = Math.max(window.innerWidth, 240) / 100;
+                baseTurtleHeight = 6 * vw;
+                baseTurtleMargin = 0.7 * vw;
+                baseLabel = 12;
+                let nForHeight = Math.max(n, 3);
+                towerHeight = nForHeight * baseTurtleHeight + (nForHeight-1)*baseTurtleMargin + baseLabel;
+                gameHeight = towerHeight + 2;
             }
             document.querySelectorAll('.tower').forEach(t => t.style.height = towerHeight + 'px');
             document.getElementById('game').style.height = gameHeight + 'px';
