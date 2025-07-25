@@ -1,0 +1,778 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>俄罗斯方块</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link href="https://fonts.googleapis.com/css?family=ZCOOL+KuaiLe|Roboto:700&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'ZCOOL KuaiLe', 'Roboto', '微软雅黑', Arial, sans-serif;
+            background: radial-gradient(circle at 60% 40%, #e3f2fd 0%, #b2ebf2 60%, #fff 100%);
+            min-height: 100vh;
+            min-width: 100vw;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .tetris-title {
+            text-align: center;
+            font-size: 2.8em;
+            letter-spacing: 0.12em;
+            color: #1976d2;
+            margin-top: 32px;
+            margin-bottom: 0;
+            text-shadow: 0 2px 16px #90caf9, 0 1px 0 #fff;
+            font-family: 'ZCOOL KuaiLe', 'Roboto', cursive;
+        }
+        .tetris-glass {
+            background: rgba(255,255,255,0.7);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px #90caf9cc, 0 1.5px 0 #fff;
+            padding: 32px 32px 24px 32px;
+            margin: 32px 0 24px 0;
+            display: flex;
+            flex-direction: row;
+            gap: 40px;
+            align-items: flex-start;
+            justify-content: center;
+            min-width: 340px;
+        }
+        .tetris-left {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            display: none;
+        }
+        #tetris-board {
+            background: linear-gradient(160deg, #263238 60%, #607d8b 100%);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px #1976d255, 0 1.5px 0 #fff;
+            border: 3px solid #1976d2;
+            width: 320px;
+            height: 640px;
+            position: relative;
+            overflow: hidden;
+            display: block;
+            margin-top: 12px;
+        }
+        #tetris-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-width: 180px;
+            margin-left: 10px;
+        }
+        #tetris-next, #tetris-hold {
+            background: #e3f2fd;
+            border-radius: 12px;
+            border: 2px solid #1976d2;
+            width: 120px;
+            height: 120px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 12px #90caf9aa;
+            position: relative;
+        }
+        #tetris-hold {
+            margin-bottom: 8px;
+        }
+        #hold-label, #next-label {
+            position: absolute;
+            top: 4px;
+            left: 8px;
+            font-size: 0.95em;
+            color: #1976d2;
+            opacity: 0.7;
+            font-weight: bold;
+            letter-spacing: 0.08em;
+        }
+        #score, #lines, #level {
+            font-size: 1.25em;
+            color: #1976d2;
+            font-weight: bold;
+            margin: 8px 0;
+            letter-spacing: 0.07em;
+            text-shadow: 0 1px 0 #fff;
+        }
+        #tetris-controls {
+            margin-top: 18px;
+            display: flex;
+            flex-direction: row;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        #tetris-controls button {
+            background: linear-gradient(90deg, #64b5f6 0%, #81c784 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 28px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #222;
+            box-shadow: 0 2px 8px #90caf955;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        #tetris-controls button:hover {
+            background: linear-gradient(90deg, #81c784 0%, #64b5f6 100%);
+            box-shadow: 0 4px 16px #26a69a55;
+            transform: translateY(-2px) scale(1.04);
+        }
+        #speed-select, #mode-select {
+            margin-top: 8px;
+            margin-bottom: 4px;
+            font-size: 1em;
+            border-radius: 8px;
+            border: 1.5px solid #90caf9;
+            padding: 6px 14px;
+            background: #f5f5f5;
+            color: #1976d2;
+            margin-right: 8px;
+        }
+        #instructions {
+            max-width: 520px;
+            width: 96vw;
+            min-width: 220px;
+            box-sizing: border-box;
+            margin: 18px auto 0 auto;
+            background: rgba(255,255,255,0.98);
+            border: 2px solid #90caf9;
+            border-radius: 16px;
+            padding: 18px 28px 16px 28px;
+            font-size: 16px;
+            color: #444;
+            line-height: 1.8;
+            box-shadow: 0 2px 16px #90caf933;
+            display: none;
+            transition: all 0.2s;
+            position: relative;
+            z-index: 10;
+        }
+        .mode-explain {
+            background: #e3f2fd;
+            border-radius: 10px;
+            border: 1.5px solid #90caf9;
+            margin: 10px 0 10px 0;
+            padding: 10px 16px 10px 16px;
+            font-size: 15px;
+            color: #1976d2;
+            line-height: 1.7;
+        }
+        #toggle-instructions-btn {
+            background: linear-gradient(90deg, #64b5f6 0%, #81c784 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 9px 24px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #222;
+            box-shadow: 0 2px 8px #90caf955;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+            margin-top: 18px;
+            margin-bottom: 0;
+            display: inline-block;
+        }
+        #toggle-instructions-btn.hide {
+            display: none !important;
+        }
+        #toggle-instructions-btn:hover {
+            background: linear-gradient(90deg, #81c784 0%, #64b5f6 100%);
+            box-shadow: 0 4px 16px #26a69a55;
+        }
+        #signature {
+            text-align: center;
+            color: #888;
+            font-size: 1.1em;
+            margin-top: 32px;
+            margin-bottom: 18px;
+            letter-spacing: 0.12em;
+            user-select: none;
+        }
+        @media (max-width: 900px) {
+            .tetris-glass { flex-direction: column; gap: 24px; align-items: center;}
+            #tetris-board { width: 240px; height: 480px;}
+            #tetris-next, #tetris-hold { width: 80px; height: 80px;}
+            #tetris-info { min-width: 120px;}
+        }
+        @media (max-width: 600px) {
+            .tetris-glass { padding: 10px 2vw 10px 2vw; }
+            #tetris-board { width: 160px; height: 320px;}
+            #tetris-next, #tetris-hold { width: 50px; height: 50px;}
+        }
+    </style>
+</head>
+<body>
+    <button onclick="window.location.href='index.html'" style="
+        position: fixed;
+        top: 18px;
+        left: 18px;
+        z-index: 9999;
+        background: linear-gradient(90deg, #b2dfdb 0%, #81c784 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 8px 18px;
+        font-size: 1.1em;
+        font-weight: bold;
+        color: #222;
+        box-shadow: 0 2px 8px #b2dfdb55;
+        cursor: pointer;
+        transition: background 0.2s, box-shadow 0.2s;
+    ">&larr; 返回</button>
+
+    <div class="tetris-title">俄罗斯方块</div>
+    <button id="toggle-instructions-btn">玩法说明</button>
+    <div id="instructions">
+        <b>玩法说明：</b>
+        <ul>
+            <li>← →：左右移动</li>
+            <li>↑ 或 X：旋转</li>
+            <li>↓：加速下落（可长按）</li>
+            <li>空格：快速下落到底</li>
+            <li>C 或 Shift：HOLD/切换暂存方块</li>
+        </ul>
+        <ul>
+            <li>消除一行得分，速度逐渐加快</li>
+            <li>支持多种模式和速度选择</li>
+            <li>支持触屏操作</li>
+        </ul>
+        <div class="mode-explain">
+            <b>标准模式：</b> 速度随等级提升<br>
+            <b>无尽模式：</b> 速度恒定<br>
+            <b>挑战模式：</b> 初始较快，逐步加速<br>
+            <b>极限模式：</b> 极快速度
+        </div>
+    </div>
+    <div class="tetris-glass">
+        <div class="tetris-left">
+            <canvas id="tetris-board" width="320" height="640" tabindex="0"></canvas>
+        </div>
+        <div id="tetris-info">
+            <div id="tetris-hold">
+                <span id="hold-label">HOLD</span>
+            </div>
+            <div id="tetris-next">
+                <span id="next-label">NEXT</span>
+            </div>
+            <div id="score">得分: 0</div>
+            <div id="lines">消除行数: 0</div>
+            <div id="level">等级: 1</div>
+            <select id="mode-select" title="选择模式">
+                <option value="classic" selected>标准模式</option>
+                <option value="endless">无尽模式</option>
+                <option value="challenge">挑战模式</option>
+                <option value="extreme">极限模式</option>
+            </select>
+            <select id="speed-select" title="选择下落速度">
+                <option value="1200">超慢</option>
+                <option value="800" selected>标准</option>
+                <option value="500">较快</option>
+                <option value="300">很快</option>
+                <option value="150">极快</option>
+            </select>
+            <div id="tetris-controls">
+                <button id="start-btn">开始</button>
+                <button id="pause-btn">暂停</button>
+                <button id="reset-btn">重置</button>
+                <button id="hold-btn">HOLD</button>
+            </div>
+        </div>
+    </div>
+    <div id="signature">胖墩会武术</div>
+    <script>
+    // --- 俄罗斯方块核心逻辑（进阶版） ---
+    // 配色
+    const COLORS = [
+        null,
+        "#00BCD4", // I
+        "#FFEB3B", // O
+        "#8BC34A", // S
+        "#E91E63", // Z
+        "#FF9800", // L
+        "#3F51B5", // J
+        "#FF5722"  // T
+    ];
+    // 形状定义
+    const SHAPES = [
+        [],
+        [[1,1,1,1]], // I
+        [[2,2],[2,2]], // O
+        [[0,3,3],[3,3,0]], // S
+        [[4,4,0],[0,4,4]], // Z
+        [[5,0,0],[5,5,5]], // L
+        [[0,0,6],[6,6,6]], // J
+        [[0,7,0],[7,7,7]]  // T
+    ];
+    // 画布和参数
+    const COLS = 10, ROWS = 20, BLOCK = 32;
+    let board = [];
+    let current = null, next = null, hold = null, canHold = true;
+    let score = 0, lines = 0, level = 1, bestScore = 0;
+    let dropInterval = 800, dropTimer = null;
+    let paused = false, gameOver = false;
+    let userSpeed = 800; // 用户选择的速度
+    let downKeyHeld = false;
+    let mode = "classic";
+    const FAST_DROP_INTERVAL = 40; // 按住向下时的快速下落间隔(ms)
+    const canvas = document.getElementById('tetris-board');
+    const ctx = canvas.getContext('2d');
+    const nextDiv = document.getElementById('tetris-next');
+    const holdDiv = document.getElementById('tetris-hold');
+    const speedSelect = document.getElementById('speed-select');
+    const modeSelect = document.getElementById('mode-select');
+    // 初始化棋盘
+    function resetBoard() {
+        board = [];
+        for(let r=0;r<ROWS;r++) {
+            board.push(new Array(COLS).fill(0));
+        }
+    }
+    // 随机生成方块
+    function randomPiece() {
+        let type = Math.floor(Math.random()*7)+1;
+        let shape = SHAPES[type];
+        return {
+            type: type,
+            shape: shape.map(row=>row.slice()),
+            row: 0,
+            col: Math.floor((COLS-shape[0].length)/2)
+        };
+    }
+    // 画单个方块
+    function drawBlock(x, y, type, context=ctx, alpha=1) {
+        if(!type) return;
+        context.save();
+        context.globalAlpha = alpha;
+        context.fillStyle = COLORS[type];
+        context.fillRect(x*BLOCK, y*BLOCK, BLOCK-2, BLOCK-2);
+        context.strokeStyle = "#fff";
+        context.lineWidth = 2;
+        context.strokeRect(x*BLOCK, y*BLOCK, BLOCK-2, BLOCK-2);
+        context.restore();
+    }
+    // 渲染棋盘
+    function drawBoard() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        // 背景格子
+        ctx.save();
+        ctx.globalAlpha = 0.08;
+        for(let r=0;r<ROWS;r++) {
+            for(let c=0;c<COLS;c++) {
+                ctx.strokeStyle = "#1976d2";
+                ctx.strokeRect(c*BLOCK, r*BLOCK, BLOCK, BLOCK);
+            }
+        }
+        ctx.restore();
+        // 固定方块
+        for(let r=0;r<ROWS;r++) {
+            for(let c=0;c<COLS;c++) {
+                drawBlock(c, r, board[r][c]);
+            }
+        }
+        // 当前方块
+        if(current) {
+            for(let r=0;r<current.shape.length;r++) {
+                for(let c=0;c<current.shape[r].length;c++) {
+                    if(current.shape[r][c]) {
+                        drawBlock(current.col+c, current.row+r, current.type);
+                    }
+                }
+            }
+            // 预览影子
+            let ghost = {...current, row: current.row};
+            while(!collide(ghost,1,0)) ghost.row++;
+            for(let r=0;r<ghost.shape.length;r++) {
+                for(let c=0;c<ghost.shape[r].length;c++) {
+                    if(ghost.shape[r][c]) {
+                        drawBlock(ghost.col+c, ghost.row+r, ghost.type, ctx, 0.25);
+                    }
+                }
+            }
+        }
+    }
+    // 渲染下一个
+    function drawNext() {
+        nextDiv.innerHTML = '<span id="next-label">NEXT</span>';
+        let nc = document.createElement("canvas");
+        nc.width = 4*BLOCK;
+        nc.height = 4*BLOCK;
+        let nctx = nc.getContext("2d");
+        let shape = next.shape;
+        for(let r=0;r<shape.length;r++) {
+            for(let c=0;c<shape[r].length;c++) {
+                if(shape[r][c]) {
+                    drawBlock(c+1, r+1, next.type, nctx);
+                }
+            }
+        }
+        nextDiv.appendChild(nc);
+    }
+    // 渲染hold
+    function drawHold() {
+        holdDiv.innerHTML = '<span id="hold-label">HOLD</span>';
+        if(!hold) return;
+        let hc = document.createElement("canvas");
+        hc.width = 4*BLOCK;
+        hc.height = 4*BLOCK;
+        let hctx = hc.getContext("2d");
+        let shape = hold.shape;
+        for(let r=0;r<shape.length;r++) {
+            for(let c=0;c<shape[r].length;c++) {
+                if(shape[r][c]) {
+                    drawBlock(c+1, r+1, hold.type, hctx);
+                }
+            }
+        }
+        holdDiv.appendChild(hc);
+    }
+    // 检查碰撞
+    function collide(piece, dr=0, dc=0, rot=null) {
+        let shape = rot ? rotate(piece.shape) : piece.shape;
+        for(let r=0;r<shape.length;r++) {
+            for(let c=0;c<shape[r].length;c++) {
+                if(shape[r][c]) {
+                    let nr = piece.row + r + dr;
+                    let nc = piece.col + c + dc;
+                    if(nr<0 || nr>=ROWS || nc<0 || nc>=COLS) return true;
+                    if(board[nr][nc]) return true;
+                }
+            }
+        }
+        return false;
+    }
+    // 固定方块
+    function merge() {
+        for(let r=0;r<current.shape.length;r++) {
+            for(let c=0;c<current.shape[r].length;c++) {
+                if(current.shape[r][c]) {
+                    let br = current.row + r;
+                    let bc = current.col + c;
+                    if(br>=0 && br<ROWS && bc>=0 && bc<COLS)
+                        board[br][bc] = current.type;
+                }
+            }
+        }
+    }
+    // 消行
+    function clearLines() {
+        let cnt = 0;
+        for(let r=ROWS-1;r>=0;r--) {
+            if(board[r].every(x=>x)) {
+                board.splice(r,1);
+                board.unshift(new Array(COLS).fill(0));
+                cnt++;
+                r++;
+            }
+        }
+        if(cnt) {
+            lines += cnt;
+            score += [0,40,100,300,1200][cnt]*level;
+            if(lines>=level*10) {
+                level++;
+                dropInterval = Math.max(100, userSpeed-60*(level-1));
+            }
+        }
+    }
+    // 旋转
+    function rotate(shape) {
+        let res = [];
+        for(let c=0;c<shape[0].length;c++) {
+            let row = [];
+            for(let r=shape.length-1;r>=0;r--) {
+                row.push(shape[r][c]);
+            }
+            res.push(row);
+        }
+        return res;
+    }
+    // 下落一步
+    function drop() {
+        if(paused || gameOver) return;
+        if(!collide(current,1,0)) {
+            current.row++;
+        } else {
+            merge();
+            clearLines();
+            current = next;
+            next = randomPiece();
+            canHold = true;
+            if(collide(current,0,0)) {
+                gameOver = true;
+                showGameOver();
+                return;
+            }
+        }
+        updateInfo();
+        drawBoard();
+        drawNext();
+        drawHold();
+    }
+    // 快速下落
+    function hardDrop() {
+        if(paused || gameOver) return;
+        while(!collide(current,1,0)) {
+            current.row++;
+        }
+        drop();
+    }
+    // 左右移动
+    function move(dx) {
+        if(paused || gameOver) return;
+        if(!collide(current,0,dx)) {
+            current.col += dx;
+            drawBoard();
+        }
+    }
+    // 旋转
+    function tryRotate() {
+        if(paused || gameOver) return;
+        let newShape = rotate(current.shape);
+        let testPiece = {
+            ...current,
+            shape: newShape
+        };
+        // 墙踢
+        if(!collide(testPiece,0,0,true)) {
+            current.shape = newShape;
+        } else if(!collide(testPiece,0,-1,true)) {
+            current.col -= 1;
+            current.shape = newShape;
+        } else if(!collide(testPiece,0,1,true)) {
+            current.col += 1;
+            current.shape = newShape;
+        }
+        drawBoard();
+    }
+    // HOLD功能
+    function holdPiece() {
+        if(!canHold || paused || gameOver) return;
+        if(!hold) {
+            hold = {...current, row:0, col:Math.floor((COLS-current.shape[0].length)/2)};
+            current = next;
+            next = randomPiece();
+        } else {
+            let temp = hold;
+            hold = {...current, row:0, col:Math.floor((COLS-current.shape[0].length)/2)};
+            current = {...temp, row:0, col:Math.floor((COLS-temp.shape[0].length)/2)};
+        }
+        canHold = false;
+        drawBoard();
+        drawNext();
+        drawHold();
+    }
+    // 更新分数等
+    function updateInfo() {
+        document.getElementById('score').textContent = "得分: " + score;
+        document.getElementById('lines').textContent = "消除行数: " + lines;
+        document.getElementById('level').textContent = "等级: " + level;
+    }
+    // 游戏结束
+    function showGameOver() {
+        ctx.save();
+        ctx.globalAlpha = 0.7;
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0,canvas.height/2-60,canvas.width,120);
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = "#d32f2f";
+        ctx.font = "bold 2.2em 'ZCOOL KuaiLe', Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("游戏结束",canvas.width/2,canvas.height/2+10);
+        ctx.font = "1.2em 'ZCOOL KuaiLe', Arial";
+        ctx.fillStyle = "#1976d2";
+        ctx.fillText("最高分: "+Math.max(score, bestScore), canvas.width/2, canvas.height/2+50);
+        ctx.restore();
+        if(score > bestScore) {
+            bestScore = score;
+            localStorage.setItem("tetris_best", bestScore);
+        }
+    }
+    // 开始游戏
+    function startGame() {
+        resetBoard();
+        score = 0; lines = 0; level = 1;
+        dropInterval = userSpeed;
+        paused = false; gameOver = false;
+        current = randomPiece();
+        next = randomPiece();
+        hold = null; canHold = true;
+        updateInfo();
+        drawBoard();
+        drawNext();
+        drawHold();
+        if(dropTimer) clearInterval(dropTimer);
+        dropTimer = setInterval(drop, dropInterval);
+        canvas.focus();
+    }
+    // 暂停
+    function pauseGame() {
+        if(gameOver) return;
+        paused = !paused;
+        document.getElementById('pause-btn').textContent = paused ? "继续" : "暂停";
+    }
+    // 重置
+    function resetGame() {
+        if(dropTimer) clearInterval(dropTimer);
+        startGame();
+    }
+    // 自动调节下落速度
+    function autoSpeed() {
+        if(dropTimer) clearInterval(dropTimer);
+        dropTimer = setInterval(drop, dropInterval);
+    }
+    // 处理速度选择
+    speedSelect.addEventListener('change', function() {
+        userSpeed = parseInt(this.value);
+        dropInterval = userSpeed - 60 * (level-1);
+        if(dropInterval < 100) dropInterval = 100;
+        if(dropTimer) {
+            clearInterval(dropTimer);
+            dropTimer = setInterval(drop, dropInterval);
+        }
+    });
+    // 处理模式选择
+    modeSelect.addEventListener('change', function() {
+        mode = this.value;
+        // 可扩展更多模式
+        if(mode === "extreme") {
+            userSpeed = 150;
+            speedSelect.value = "150";
+        } else if(mode === "challenge") {
+            userSpeed = 500;
+            speedSelect.value = "500";
+        } else if(mode === "endless") {
+            userSpeed = 800;
+            speedSelect.value = "800";
+        } else {
+            userSpeed = 800;
+            speedSelect.value = "800";
+        }
+        resetGame();
+    });
+
+    // 按住向下键加速
+    function startFastDrop() {
+        if (downKeyHeld || paused || gameOver) return;
+        downKeyHeld = true;
+        if (dropTimer) clearInterval(dropTimer);
+        dropTimer = setInterval(drop, FAST_DROP_INTERVAL);
+    }
+    function stopFastDrop() {
+        if (!downKeyHeld) return;
+        downKeyHeld = false;
+        if (dropTimer) clearInterval(dropTimer);
+        dropInterval = userSpeed - 60 * (level-1);
+        if(dropInterval < 100) dropInterval = 100;
+        dropTimer = setInterval(drop, dropInterval);
+    }
+
+    // 键盘事件
+    document.addEventListener('keydown', function(e){
+        if(document.activeElement!==canvas) return;
+        if(gameOver) return;
+        if(e.key==="ArrowLeft") { move(-1); }
+        else if(e.key==="ArrowRight") { move(1); }
+        else if(e.key==="ArrowDown") { 
+            startFastDrop();
+            drop();
+        }
+        else if(e.key==="ArrowUp" || e.key==="x" || e.key==="X") { tryRotate(); }
+        else if(e.key===" " || e.key==="Spacebar") { hardDrop(); }
+        else if(e.key==="c" || e.key==="C" || e.key==="Shift") { holdPiece(); }
+    });
+    document.addEventListener('keyup', function(e){
+        if(e.key==="ArrowDown") {
+            stopFastDrop();
+        }
+    });
+
+    // 按钮事件
+    document.getElementById('start-btn').onclick = startGame;
+    document.getElementById('reset-btn').onclick = resetGame;
+    document.getElementById('pause-btn').onclick = pauseGame;
+    document.getElementById('hold-btn').onclick = holdPiece;
+    // 自动调节速度
+    setInterval(function(){
+        if(!paused && !gameOver && dropTimer && !downKeyHeld) {
+            clearInterval(dropTimer);
+            dropInterval = userSpeed - 60 * (level-1);
+            if(dropInterval < 100) dropInterval = 100;
+            dropTimer = setInterval(drop, dropInterval);
+        }
+    }, 1000);
+    // 说明按钮
+    document.getElementById('toggle-instructions-btn').onclick = function() {
+        let inst = document.getElementById('instructions');
+        let btn = this;
+        if(inst.style.display==="none"||inst.style.display==="") {
+            inst.style.display = "block";
+            btn.textContent = "收起说明";
+        } else {
+            inst.style.display = "none";
+            btn.textContent = "玩法说明";
+        }
+    };
+    // 触屏按钮支持
+    function createTouchControls() {
+        if(window.innerWidth > 700) return;
+        if(document.getElementById('touch-controls')) return;
+        let ctrl = document.createElement('div');
+        ctrl.id = 'touch-controls';
+        ctrl.style.position = 'fixed';
+        ctrl.style.bottom = '18px';
+        ctrl.style.left = '50%';
+        ctrl.style.transform = 'translateX(-50%)';
+        ctrl.style.display = 'flex';
+        ctrl.style.gap = '12px';
+        ctrl.style.zIndex = 100;
+        ctrl.innerHTML = `
+            <button style="font-size:1.5em;padding:10px 18px;border-radius:50%;background:#64b5f6;border:none;" id="btn-left">←</button>
+            <button style="font-size:1.5em;padding:10px 18px;border-radius:50%;background:#64b5f6;border:none;" id="btn-rotate">⟳</button>
+            <button style="font-size:1.5em;padding:10px 18px;border-radius:50%;background:#64b5f6;border:none;" id="btn-right">→</button>
+            <button style="font-size:1.5em;padding:10px 18px;border-radius:50%;background:#81c784;border:none;" id="btn-down">↓</button>
+            <button style="font-size:1.2em;padding:10px 18px;border-radius:50%;background:#ffd54f;border:none;" id="btn-hold">H</button>
+            <button style="font-size:1.2em;padding:10px 18px;border-radius:50%;background:#ff8a65;border:none;" id="btn-drop">⇩</button>
+        `;
+        document.body.appendChild(ctrl);
+        document.getElementById('btn-left').ontouchstart = ()=>move(-1);
+        document.getElementById('btn-right').ontouchstart = ()=>move(1);
+        document.getElementById('btn-rotate').ontouchstart = ()=>tryRotate();
+        document.getElementById('btn-down').ontouchstart = ()=>{startFastDrop(); drop();};
+        document.getElementById('btn-down').ontouchend = ()=>stopFastDrop();
+        document.getElementById('btn-hold').ontouchstart = ()=>holdPiece();
+        document.getElementById('btn-drop').ontouchstart = ()=>hardDrop();
+    }
+    window.addEventListener('resize', createTouchControls);
+    createTouchControls();
+
+    // 最高分
+    if(localStorage.getItem("tetris_best")) {
+        bestScore = parseInt(localStorage.getItem("tetris_best"));
+    }
+
+    // 初始化
+    resetBoard();
+    updateInfo();
+    drawBoard();
+    drawNext();
+    drawHold();
+    </script>
+</body>
+</html>
