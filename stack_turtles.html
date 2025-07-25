@@ -109,6 +109,16 @@
             font-weight: bold;
             letter-spacing: 0.07em;
         }
+        #game-count {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 0;
+            font-size: 16px;
+            color: #1976d2;
+            font-weight: bold;
+            letter-spacing: 0.07em;
+            user-select: none;
+        }
         #reset-btn, #start-btn, #auto-demo-btn {
             margin-left: 8px;
             background: linear-gradient(90deg, #b2dfdb 0%, #81c784 100%);
@@ -183,6 +193,10 @@
             color: #388e3c;
             letter-spacing: 0.13em;
             text-shadow: 0 1px 4px #b2dfdb88;
+            /* 新增：让ABC在小屏幕下也能显示大一点 */
+            line-height: 1.2;
+            min-height: 1.5em;
+            user-select: none;
         }
         .turtle {
             height: 44px;
@@ -275,7 +289,7 @@
             .tower { width: 60px; }
             .turtle { width: 36px; height: 20px; font-size: 10px; line-height: 20px; }
             .turtle-svg { width: 24px; height: 20px; }
-            .tower-label { font-size: 0.8em; }
+            .tower-label { font-size: 1.1em; min-height: 1.5em; } /* 保持ABC大一点 */
             #signature { font-size: 0.95em; height: 28px; border-radius: 0 0 10px 10px;}
         }
         @media (max-width: 600px) {
@@ -286,8 +300,9 @@
             .tower { width: 32px; }
             .turtle { width: 14px; height: 8px; font-size: 6px; line-height: 8px; }
             .turtle-svg { width: 10px; height: 8px; }
-            .tower-label { font-size: 0.6em; }
+            .tower-label { font-size: 1.1em; min-height: 1.5em; } /* 保持ABC大一点 */
             #steps { font-size: 10px; }
+            #game-count { font-size: 10px; }
             #signature { font-size: 0.8em; height: 18px; border-radius: 0 0 6px 6px;}
         }
     </style>
@@ -330,6 +345,7 @@
         <div id="main-game-area">
             <div id="game"></div>
             <div id="steps"></div>
+            <div id="game-count"></div>
         </div>
         <div id="message"></div>
     </div>
@@ -340,6 +356,16 @@
         let towers, n, steps, selectedTower = null;
         let autoDemoRunning = false;
         let autoDemoAbort = false;
+
+        // 游戏次数统计
+        let gameCount = 0;
+        // 尝试从localStorage读取
+        if (window.localStorage) {
+            let gc = localStorage.getItem('stack_turtles_game_count');
+            if (gc !== null) {
+                gameCount = parseInt(gc) || 0;
+            }
+        }
 
         // --- 礼花特效相关（已禁用） ---
         const fireworks = { start() {}, stop() {} };
@@ -407,11 +433,11 @@
             let gameHeight = towerHeight + 20;
             // 响应式下缩放
             if (window.innerWidth <= 900) {
-                towerHeight = n * 20 + (n-1)*3 + 16;
+                towerHeight = n * 20 + (n-1)*3 + 36; // 标签高度不变
                 gameHeight = towerHeight + 10;
             }
             if (window.innerWidth <= 600) {
-                towerHeight = n * 8 + (n-1)*1 + 6;
+                towerHeight = n * 8 + (n-1)*1 + 36; // 标签高度不变
                 gameHeight = towerHeight + 4;
             }
             document.querySelectorAll('.tower').forEach(t => t.style.height = towerHeight + 'px');
@@ -460,6 +486,8 @@
                 gameDiv.appendChild(towerDiv);
             });
             document.getElementById('steps').textContent = `步数: ${steps}`;
+            // 显示游戏次数
+            document.getElementById('game-count').textContent = `游戏次数: ${gameCount}`;
             setTowerAndGameHeight(n);
         }
 
@@ -500,6 +528,13 @@
                     steps += 1;
                     showMessage('');
                     if (towers['C'].length === n) {
+                        // 游戏完成，计数+1
+                        if (window.localStorage) {
+                            gameCount += 1;
+                            localStorage.setItem('stack_turtles_game_count', gameCount);
+                        } else {
+                            gameCount += 1;
+                        }
                         render();
                         showMessage(`🎉 恭喜！你用了 ${steps} 步完成叠乌龟！`, '#388e3c');
                         n = undefined;
@@ -569,6 +604,14 @@
             selectedTower = null;
             render();
             if (!autoDemoAbort && towers['C'].length === n) {
+                // 自动演示完成也计数
+                if (window.localStorage) {
+                    gameCount += 1;
+                    localStorage.setItem('stack_turtles_game_count', gameCount);
+                } else {
+                    gameCount += 1;
+                }
+                render();
                 showMessage(`🎉 自动演示完成！共 ${steps} 步。`, '#388e3c');
             }
             autoDemoRunning = false;
@@ -617,6 +660,10 @@
         startGame();
         // 首次设置高度
         setTowerAndGameHeight(parseInt(document.getElementById('input-n').value) || 3);
+        // 首次显示游戏次数
+        if (document.getElementById('game-count')) {
+            document.getElementById('game-count').textContent = `游戏次数: ${gameCount}`;
+        }
     </script>
 </body>
 </html>
