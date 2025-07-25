@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>叠乌龟游戏</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <style>
         html, body {
             height: 100%;
@@ -189,30 +189,32 @@
             text-align: center;
             font-weight: bold;
             margin-top: 7px;
-            font-size: 1.1em;
+            font-size: 1.5em;
             color: #388e3c;
             letter-spacing: 0.13em;
             text-shadow: 0 1px 4px #b2dfdb88;
-            /* 新增：让ABC在小屏幕下也能显示大一点 */
             line-height: 1.2;
             min-height: 1.5em;
             user-select: none;
         }
         .turtle {
-            height: 44px;
+            --turtle-width: 80px;
+            --turtle-height: 44px;
+            --turtle-font: 18px;
+            width: var(--turtle-width);
+            height: var(--turtle-height);
             margin-bottom: 4px;
             border-radius: 14px;
             background: none;
             color: #333;
             text-align: center;
-            line-height: 44px;
+            line-height: var(--turtle-height);
             font-weight: bold;
-            font-size: 18px;
+            font-size: var(--turtle-font);
             box-shadow: 0 3px 10px #b2dfdb88;
             cursor: pointer;
             transition: box-shadow 0.2s, border 0.2s, transform 0.15s;
             position: relative;
-            width: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -229,8 +231,10 @@
         }
         /* 乌龟SVG样式 */
         .turtle-svg {
-            width: 70px;
-            height: 44px;
+            width: 90%;
+            height: 90%;
+            max-width: 100%;
+            max-height: 100%;
             display: block;
             filter: drop-shadow(0 2px 8px #b2dfdb88);
         }
@@ -240,7 +244,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: var(--turtle-font);
             font-weight: bold;
             color: #333;
             pointer-events: none;
@@ -253,10 +257,8 @@
             vertical-align: middle;
             accent-color: #388e3c;
         }
-        /* 礼花canvas覆盖层样式（已禁用） */
         #fireworks-canvas { display: none !important; }
         #blur-overlay { display: none !important; }
-        /* 署名样式 */
         #signature {
             width: 100vw;
             max-width: 700px;
@@ -282,14 +284,17 @@
             margin-bottom: 0;
             height: 38px;
         }
-        /* 响应式 */
+        /* 响应式优化：小屏幕下保持乌龟和数字可见且不被压缩 */
         @media (max-width: 900px) {
             .container { max-width: 98vw; }
             #game { gap: 8px; max-width: 98vw; }
-            .tower { width: 60px; }
-            .turtle { width: 36px; height: 20px; font-size: 10px; line-height: 20px; }
-            .turtle-svg { width: 24px; height: 20px; }
-            .tower-label { font-size: 1.1em; min-height: 1.5em; } /* 保持ABC大一点 */
+            .tower { width: 50px; }
+            .tower-label { font-size: 1.2em; min-height: 1.5em; }
+            .turtle {
+                --turtle-width: 32px;
+                --turtle-height: 18px;
+                --turtle-font: 9px;
+            }
             #signature { font-size: 0.95em; height: 28px; border-radius: 0 0 10px 10px;}
         }
         @media (max-width: 600px) {
@@ -297,13 +302,41 @@
             .container { max-width: 100vw; }
             #main-game-area { margin-top: 4px; }
             #game { gap: 2px; max-width: 100vw;}
-            .tower { width: 32px; }
-            .turtle { width: 14px; height: 8px; font-size: 6px; line-height: 8px; }
-            .turtle-svg { width: 10px; height: 8px; }
-            .tower-label { font-size: 1.1em; min-height: 1.5em; } /* 保持ABC大一点 */
+            .tower { width: 22vw; min-width: 22vw; max-width: 32vw; }
+            .tower-label { font-size: 1.3em; min-height: 1.5em; }
+            .turtle {
+                --turtle-width: 16vw;
+                --turtle-height: 8vw;
+                --turtle-font: 4vw;
+                min-width: 14px;
+                min-height: 8px;
+                max-width: 60px;
+                max-height: 30px;
+            }
+            .turtle-svg {
+                width: 100%;
+                height: 100%;
+                min-width: 10px;
+                min-height: 8px;
+                max-width: 60px;
+                max-height: 30px;
+            }
             #steps { font-size: 10px; }
             #game-count { font-size: 10px; }
             #signature { font-size: 0.8em; height: 18px; border-radius: 0 0 6px 6px;}
+        }
+        @media (max-width: 400px) {
+            .tower { width: 28vw; min-width: 18vw; }
+            .turtle {
+                --turtle-width: 12vw;
+                --turtle-height: 6vw;
+                --turtle-font: 3vw;
+                min-width: 8px;
+                min-height: 5px;
+                max-width: 30px;
+                max-height: 16px;
+            }
+            .tower-label { font-size: 1.1em; }
         }
     </style>
 </head>
@@ -428,16 +461,25 @@
 
         // 动态设置塔和游戏区高度
         function setTowerAndGameHeight(n) {
-            // 每只乌龟44px+4px间隔，塔顶部+底部+标签约36px
-            let towerHeight = n * 44 + (n-1)*4 + 36;
+            // 以大屏为基准
+            let baseTurtleHeight = 44, baseTurtleMargin = 4, baseLabel = 36;
+            let towerHeight = n * baseTurtleHeight + (n-1)*baseTurtleMargin + baseLabel;
             let gameHeight = towerHeight + 20;
             // 响应式下缩放
             if (window.innerWidth <= 900) {
-                towerHeight = n * 20 + (n-1)*3 + 36; // 标签高度不变
+                baseTurtleHeight = 18;
+                baseTurtleMargin = 2;
+                baseLabel = 28;
+                towerHeight = n * baseTurtleHeight + (n-1)*baseTurtleMargin + baseLabel;
                 gameHeight = towerHeight + 10;
             }
             if (window.innerWidth <= 600) {
-                towerHeight = n * 8 + (n-1)*1 + 36; // 标签高度不变
+                // 以vw为单位，保证在极小屏幕下也能显示
+                let vw = Math.max(window.innerWidth, 320) / 100;
+                baseTurtleHeight = 8 * vw;
+                baseTurtleMargin = 1 * vw;
+                baseLabel = 18;
+                towerHeight = n * baseTurtleHeight + (n-1)*baseTurtleMargin + baseLabel;
                 gameHeight = towerHeight + 4;
             }
             document.querySelectorAll('.tower').forEach(t => t.style.height = towerHeight + 'px');
@@ -451,6 +493,35 @@
                 '#8bc34a', '#4caf50', '#cddc39', '#ffb347', '#ffcc33', '#b388ff', '#40c4ff', '#ffab91',
                 '#a5d6a7', '#ffd54f', '#f48fb1', '#90caf9'
             ];
+            // 动态计算乌龟尺寸
+            let turtleWidth = 80, turtleHeight = 44, turtleFont = 18;
+            if (window.innerWidth <= 900) {
+                turtleWidth = 32; turtleHeight = 18; turtleFont = 9;
+            }
+            if (window.innerWidth <= 600) {
+                let vw = Math.max(window.innerWidth, 320) / 100;
+                turtleWidth = 16 * vw;
+                turtleHeight = 8 * vw;
+                turtleFont = 4 * vw;
+                if (turtleWidth < 14) turtleWidth = 14;
+                if (turtleHeight < 8) turtleHeight = 8;
+                if (turtleFont < 6) turtleFont = 6;
+                if (turtleWidth > 60) turtleWidth = 60;
+                if (turtleHeight > 30) turtleHeight = 30;
+                if (turtleFont > 24) turtleFont = 24;
+            }
+            if (window.innerWidth <= 400) {
+                let vw = Math.max(window.innerWidth, 240) / 100;
+                turtleWidth = 12 * vw;
+                turtleHeight = 6 * vw;
+                turtleFont = 3 * vw;
+                if (turtleWidth < 8) turtleWidth = 8;
+                if (turtleHeight < 5) turtleHeight = 5;
+                if (turtleFont < 4) turtleFont = 4;
+                if (turtleWidth > 30) turtleWidth = 30;
+                if (turtleHeight > 16) turtleHeight = 16;
+                if (turtleFont > 14) turtleFont = 14;
+            }
             ['A', 'B', 'C'].forEach(name => {
                 const towerDiv = document.createElement('div');
                 towerDiv.className = 'tower';
@@ -465,6 +536,10 @@
                 towers[name].forEach((turtle, idx) => {
                     const turtleDiv = document.createElement('div');
                     turtleDiv.className = 'turtle';
+                    // 动态设置CSS变量
+                    turtleDiv.style.setProperty('--turtle-width', turtleWidth + 'px');
+                    turtleDiv.style.setProperty('--turtle-height', turtleHeight + 'px');
+                    turtleDiv.style.setProperty('--turtle-font', turtleFont + 'px');
                     if (selectedTower === name && idx === towers[name].length - 1) {
                         turtleDiv.classList.add('selected');
                     }
@@ -474,8 +549,10 @@
                 });
                 for (let i = towers[name].length; i < n; i++) {
                     const emptyDiv = document.createElement('div');
-                    emptyDiv.style.height = '44px';
-                    emptyDiv.style.width = '100%';
+                    emptyDiv.className = 'turtle';
+                    emptyDiv.style.setProperty('--turtle-width', turtleWidth + 'px');
+                    emptyDiv.style.setProperty('--turtle-height', turtleHeight + 'px');
+                    emptyDiv.style.setProperty('--turtle-font', turtleFont + 'px');
                     emptyDiv.style.opacity = '0';
                     towerDiv.appendChild(emptyDiv);
                 }
