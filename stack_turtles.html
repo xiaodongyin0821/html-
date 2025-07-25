@@ -11,20 +11,16 @@ html_code = """
     <style>
         html {
             box-sizing: border-box;
-            /* 防止字体缩放导致溢出 */
             -webkit-text-size-adjust: 100%;
         }
-        *, *:before, *:after {
-            box-sizing: inherit;
-        }
+        *, *:before, *:after { box-sizing: inherit; }
+        body, html { max-width: 100vw; overflow-x: hidden; }
         body {
             font-family: 'HarmonyOS Sans', '微软雅黑', Arial, sans-serif;
             background: linear-gradient(135deg, #e0f7fa 0%, #fffde7 100%);
             min-height: 100vh;
             margin: 0;
-            /* 新增柔光背景 */
             position: relative;
-            overflow-x: hidden;
         }
         body::before {
             content: "";
@@ -38,7 +34,7 @@ html_code = """
         }
         h1 {
             text-align: center;
-            font-size: 2.9em;
+            font-size: 2.2em;
             letter-spacing: 0.13em;
             color: #388e3c;
             margin-top: 38px;
@@ -47,43 +43,75 @@ html_code = """
             font-family: 'ZCOOL KuaiLe', 'HarmonyOS Sans', '微软雅黑', Arial, sans-serif;
             user-select: none;
         }
-        #instructions {
-            max-width: 700px;
-            margin: 28px auto 0 auto;
-            background: rgba(255,255,255,0.98);
-            border: 2.5px solid #b2dfdb;
-            border-radius: 18px;
-            padding: 26px 38px 18px 38px;
-            font-size: 18px;
-            color: #444;
-            line-height: 2.0;
-            box-shadow: 0 8px 32px #b2dfdb44, 0 1.5px 0 #fffde7;
-            position: relative;
-        }
-        /* 署名样式 */
-        .signature-footer {
+        #controls {
             text-align: center;
-            margin: 38px 0 18px 0;
-            opacity: 0.85;
+            margin-top: 22px;
             font-size: 1.15em;
-            color: #b388ff;
-            font-family: 'ZCOOL KuaiLe','HarmonyOS Sans','微软雅黑',Arial,sans-serif;
-            letter-spacing: 0.18em;
-            user-select: none;
+            background: rgba(255,255,255,0.85);
+            border-radius: 10px;
+            box-shadow: 0 2px 8px #b2dfdb33;
+            padding: 10px 0 8px 0;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+            box-sizing: border-box;
         }
-        #instructions ul {
-            margin: 12px 0 0 28px;
+        #input-n {
+            width: 54px;
+            font-size: 1.08em;
+            border-radius: 7px;
+            border: 2px solid #b2dfdb;
+            padding: 4px 8px;
+            margin-right: 6px;
+            text-align: center;
+            background: #fffde7;
+            box-shadow: 0 1px 4px #b2dfdb22;
+            transition: border 0.2s;
         }
-        #instructions li {
-            margin-bottom: 2px;
+        #input-n:focus { border-color: #388e3c; outline: none; }
+        #reset-btn, #start-btn, #auto-demo-btn {
+            margin-left: 10px;
+            background: linear-gradient(90deg, #b2dfdb 0%, #81c784 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 8px 22px;
+            font-size: 1.08em;
+            font-weight: bold;
+            color: #222;
+            box-shadow: 0 2px 8px #b2dfdb55;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s, transform 0.13s;
+            outline: none;
         }
-        /* 游戏主界面整体容器，包含ABC和步数 */
+        #reset-btn:hover, #start-btn:hover, #auto-demo-btn:hover {
+            background: linear-gradient(90deg, #81c784 0%, #b2dfdb 100%);
+            box-shadow: 0 6px 18px #26a69a55;
+            transform: translateY(-2px) scale(1.04);
+        }
+        #auto-demo-btn { margin-left: 10px; }
+        #speed-label { margin-left: 22px; }
+        #speed-range {
+            width: 120px;
+            vertical-align: middle;
+            accent-color: #388e3c;
+            border-radius: 6px;
+            border: 1.5px solid #b2dfdb;
+            background: #fffde7;
+            font-size: 1em;
+            padding: 2px 4px;
+        }
+        #speed-value {
+            margin-left: 6px;
+            color: #388e3c;
+            font-weight: bold;
+            font-size: 1em;
+        }
         #main-game-area {
             display: flex;
             flex-direction: column;
             align-items: center;
             margin-top: 24px;
-            margin-bottom: 0;
             background: rgba(255,255,255,0.85);
             border-radius: 18px;
             box-shadow: 0 4px 24px #b2dfdb33;
@@ -98,14 +126,12 @@ html_code = """
             justify-content: center;
             align-items: flex-end;
             height: 390px;
-            margin-top: 0;
             margin-bottom: 10px;
             gap: 48px;
             padding: 0 18px;
             width: 100%;
             max-width: 900px;
             box-sizing: border-box;
-            /* 修复微信端压缩问题：强制最小宽度，防止flex收缩 */
             min-width: 320px;
         }
         .tower {
@@ -122,7 +148,7 @@ html_code = """
             border: 3.5px solid #80cbc4;
             transition: box-shadow 0.2s, border 0.2s;
             overflow: visible;
-            min-width: 90px; /* 新增，防止被flex收缩 */
+            min-width: 90px;
             flex: 1 1 0;
         }
         .tower:hover {
@@ -173,84 +199,6 @@ html_code = """
             transform: scale(1.06);
             background: linear-gradient(90deg, #fffde7 0%, #b2dfdb 100%);
         }
-        #controls {
-            text-align: center;
-            margin-top: 22px;
-            font-size: 1.15em;
-            background: rgba(255,255,255,0.85);
-            border-radius: 10px;
-            box-shadow: 0 2px 8px #b2dfdb33;
-            padding: 10px 0 8px 0;
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        #message {
-            text-align: center;
-            color: #d32f2f;
-            font-size: 22px;
-            min-height: 32px;
-            margin-top: 12px;
-            font-weight: bold;
-            letter-spacing: 0.07em;
-            text-shadow: 0 1px 4px #fffde7cc;
-        }
-        #steps {
-            text-align: center;
-            margin-top: 0;
-            margin-bottom: 0;
-            font-size: 22px;
-            color: #388e3c;
-            font-weight: bold;
-            letter-spacing: 0.09em;
-            text-shadow: 0 1px 4px #fffde7cc;
-        }
-        #reset-btn, #start-btn, #auto-demo-btn {
-            margin-left: 10px;
-            background: linear-gradient(90deg, #b2dfdb 0%, #81c784 100%);
-            border: none;
-            border-radius: 10px;
-            padding: 8px 22px;
-            font-size: 1.08em;
-            font-weight: bold;
-            color: #222;
-            box-shadow: 0 2px 8px #b2dfdb55;
-            cursor: pointer;
-            transition: background 0.2s, box-shadow 0.2s, transform 0.13s;
-            outline: none;
-        }
-        #reset-btn:hover, #start-btn:hover, #auto-demo-btn:hover {
-            background: linear-gradient(90deg, #81c784 0%, #b2dfdb 100%);
-            box-shadow: 0 6px 18px #26a69a55;
-            transform: translateY(-2px) scale(1.04);
-        }
-        #input-n {
-            width: 54px;
-            font-size: 1.08em;
-            border-radius: 7px;
-            border: 2px solid #b2dfdb;
-            padding: 4px 8px;
-            margin-right: 6px;
-            text-align: center;
-            background: #fffde7;
-            box-shadow: 0 1px 4px #b2dfdb22;
-            transition: border 0.2s;
-        }
-        #input-n:focus {
-            border-color: #388e3c;
-            outline: none;
-        }
-        /* 礼花canvas覆盖层样式（已禁用） */
-        #fireworks-canvas {
-            display: none !important;
-        }
-        /* 虚化层（已禁用） */
-        #blur-overlay {
-            display: none !important;
-        }
-        /* 乌龟SVG样式 */
         .turtle-svg {
             width: 98px;
             height: 58px;
@@ -272,24 +220,104 @@ html_code = """
             text-shadow: 0 1px 4px #fffde7cc, 0 0px 2px #388e3c88;
             font-family: 'ZCOOL KuaiLe', 'HarmonyOS Sans', '微软雅黑', Arial, sans-serif;
         }
-        /* 自动演示按钮样式 */
-        #auto-demo-btn { margin-left: 10px; }
-        #speed-label { margin-left: 22px; }
-        #speed-range {
-            width: 120px;
-            vertical-align: middle;
-            accent-color: #388e3c;
-            border-radius: 6px;
-            border: 1.5px solid #b2dfdb;
-            background: #fffde7;
-            font-size: 1em;
-            padding: 2px 4px;
-        }
-        #speed-value {
-            margin-left: 6px;
+        #steps {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 0;
+            font-size: 22px;
             color: #388e3c;
             font-weight: bold;
+            letter-spacing: 0.09em;
+            text-shadow: 0 1px 4px #fffde7cc;
+        }
+        #message {
+            text-align: center;
+            color: #d32f2f;
+            font-size: 22px;
+            min-height: 32px;
+            margin-top: 12px;
+            font-weight: bold;
+            letter-spacing: 0.07em;
+            text-shadow: 0 1px 4px #fffde7cc;
+        }
+        /* 隐藏说明初始 */
+        #instructions-panel { display: none; }
+        /* 说明面板美化 */
+        #instructions-panel {
+            max-width: 700px;
+            margin: 0 auto 0 auto;
+            background: linear-gradient(120deg, #fffde7 80%, #b2dfdb22 100%);
+            border-radius: 18px;
+            box-shadow: 0 4px 24px #b2dfdb33;
+            padding: 32px 32px 24px 32px;
+            text-align: left;
+            font-size: 1.18em;
+            color: #333;
+            position: relative;
+            z-index: 10;
+            border: 2.5px solid #b388ff;
+            margin-bottom: 32px;
+            margin-top: 0;
+            animation: fadeIn 0.3s;
+        }
+        #instructions-panel h2 {
+            text-align: center;
+            color: #388e3c;
+            font-size: 1.5em;
+            margin-top: 0;
+            margin-bottom: 12px;
+            letter-spacing: 0.12em;
+            font-family: 'ZCOOL KuaiLe', 'HarmonyOS Sans', '微软雅黑', Arial, sans-serif;
+            text-shadow: 0 2px 8px #b2dfdb88, 0 1px 0 #fffde7;
+        }
+        #instructions-panel ul {
+            margin: 12px 0 12px 24px;
+            padding: 0;
+        }
+        #instructions-panel li {
+            margin-bottom: 8px;
+            line-height: 1.7;
+        }
+        #instructions-panel .ins-footer {
+            display: block;
+            text-align: right;
+            color: #b388ff;
             font-size: 1em;
+            margin-top: 18px;
+            font-family: 'ZCOOL KuaiLe','HarmonyOS Sans','微软雅黑',Arial,sans-serif;
+            letter-spacing: 0.13em;
+            opacity: 0.85;
+        }
+        #instructions-panel .close-btn {
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            background: linear-gradient(90deg,#b2dfdb 0%,#b388ff 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 4px 14px;
+            font-size: 1em;
+            font-weight: bold;
+            color: #222;
+            box-shadow: 0 2px 8px #b2dfdb55;
+            cursor: pointer;
+            transition: background 0.2s,box-shadow 0.2s,transform 0.13s;
+            outline: none;
+        }
+        #instructions-panel .close-btn:hover {
+            background: linear-gradient(90deg,#b388ff 0%,#b2dfdb 100%);
+            transform: translateY(-2px) scale(1.04);
+        }
+        /* 署名样式 */
+        .signature-footer {
+            text-align: center;
+            margin: 38px 0 18px 0;
+            opacity: 0.85;
+            font-size: 1.15em;
+            color: #b388ff;
+            font-family: 'ZCOOL KuaiLe','HarmonyOS Sans','微软雅黑',Arial,sans-serif;
+            letter-spacing: 0.18em;
+            user-select: none;
         }
         /* 响应式优化 */
         @media (max-width: 1100px) {
@@ -299,9 +327,9 @@ html_code = """
             .turtle { width: 60px; height: 32px; font-size: 14px; line-height: 32px; }
             .turtle-svg { width: 48px; height: 32px; }
             .tower-label { font-size: 1em; }
+            #instructions-panel { padding: 18px 8px 12px 8px; font-size: 1em; }
         }
         @media (max-width: 700px) {
-            #instructions { padding: 10px 4vw; font-size: 15px; }
             #main-game-area { margin-top: 8px; }
             #game {
                 gap: 2px;
@@ -327,58 +355,34 @@ html_code = """
             #reset-btn, #start-btn, #auto-demo-btn { padding: 4px 8px; font-size: 0.9em; }
             #speed-range { width: 60px; font-size: 0.9em; }
             #speed-label { margin-left: 6px; }
+            #instructions-panel { font-size: 0.9em; }
         }
         @media (max-width: 500px) {
             h1 { font-size: 1.2em; }
-            #instructions { font-size: 12px; }
             #main-game-area { padding: 4px 0 2px 0; }
             #controls { font-size: 0.8em; }
+            #instructions-panel { font-size: 0.8em; }
         }
-        /* 进一步防止横向溢出和形变 */
         @media (max-width: 400px) {
             .tower { width: 28px; height: 36px; min-width: 18px !important; }
             .turtle { width: 14px; height: 7px; font-size: 5px; line-height: 7px; }
             .turtle-svg { width: 10px; height: 7px; }
             .tower-label { font-size: 0.5em; }
         }
-        /* 防止微信/浏览器缩放导致溢出 */
-        body, html {
-            max-width: 100vw;
-            overflow-x: hidden;
-        }
-        /* 微信端专用：防止flex收缩导致ABC塔被压缩到极小 */
-        @media (max-width: 700px) {
-            #game {
-                min-width: 240px !important;
-                width: 100vw;
-            }
-            .tower {
-                min-width: 60px !important;
-            }
-        }
-        /* 引入可爱字体 */
         @import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap');
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-16px);}
+            to { opacity: 1; transform: none;}
+        }
     </style>
 </head>
 <body>
     <h1>叠乌龟游戏</h1>
-    <div id="instructions">
-        <b>游戏说明：</b><br>
-        叠乌龟是一种经典的益智游戏。目标是将所有乌龟从左侧的乌龟堆（A）移动到右侧的乌龟堆（C），每次只能移动一个乌龟，并且大乌龟不能叠在小乌龟上面。<br>
-        <ul>
-            <li>点击一个有乌龟的堆选中顶部乌龟，再点击另一个堆完成移动。</li>
-            <li>每次只能移动最上面的乌龟。</li>
-            <li>不能将大乌龟叠在小乌龟上。</li>
-            <li>你可以选择层数，挑战更高难度！</li>
-            <li>点击“自动演示”可观看自动解法过程，速度可调。</li>
-        </ul>
-        <span style="color:#888;">祝你玩得开心！</span>
-    </div>
     <div id="controls">
         层数: <input id="input-n" type="number" min="2" max="8" value="3">
         <button id="start-btn">开始游戏</button>
         <button id="reset-btn">重置</button>
-        <button id="auto-demo-btn" style="margin-left:10px;">自动演示</button>
+        <button id="auto-demo-btn">自动演示</button>
         <span id="speed-label">
             速度: 
             <select id="speed-range">
@@ -396,46 +400,56 @@ html_code = """
         <div id="steps"></div>
     </div>
     <div id="message"></div>
-    <div id="blur-overlay"></div>
-    <canvas id="fireworks-canvas"></canvas>
+    <!-- 游戏说明面板，唯一署名之上，主界面对齐 -->
+    <div id="instructions-panel">
+        <button class="close-btn" id="close-instructions-btn">关闭</button>
+        <h2>游戏说明</h2>
+        <div>
+            叠乌龟是一种经典的益智游戏。目标是将所有乌龟从左侧的乌龟堆（A）移动到右侧的乌龟堆（C），每次只能移动一个乌龟，并且大乌龟不能叠在小乌龟上面。
+            <ul>
+                <li>点击一个有乌龟的堆选中顶部乌龟，再点击另一个堆完成移动。</li>
+                <li>每次只能移动最上面的乌龟。</li>
+                <li>不能将大乌龟叠在小乌龟上。</li>
+                <li>你可以选择层数，挑战更高难度！</li>
+                <li>点击“自动演示”可观看自动解法过程，速度可调。</li>
+            </ul>
+            <span style="color:#888;">祝你玩得开心！</span>
+        </div>
+        <span class="ins-footer">© 胖墩会武术</span>
+    </div>
     <div class="signature-footer">
         © 胖墩会武术
+    </div>
+    <div style="text-align:center;margin:18px 0;">
+        <button id="toggle-instructions-btn" style="background:linear-gradient(90deg,#b2dfdb 0%,#b388ff 100%);border:none;border-radius:8px;padding:8px 22px;font-size:1.08em;font-weight:bold;color:#222;box-shadow:0 2px 8px #b2dfdb55;cursor:pointer;transition:background 0.2s,box-shadow 0.2s,transform 0.13s;outline:none;">
+            显示游戏说明
+        </button>
     </div>
     <script>
         let towers, n, steps, selectedTower = null;
         let autoDemoRunning = false;
         let autoDemoAbort = false;
 
-        // --- 礼花特效相关（已禁用） ---
+        // 礼花特效相关（已禁用）
         const fireworks = { start() {}, stop() {} };
 
-        function createTowers(n) {
+        function createTowers(num) {
             towers = { 'A': [], 'B': [], 'C': [] };
-            for (let i = n; i >= 1; i--) {
-                towers['A'].push(i);
-            }
+            for (let i = num; i >= 1; i--) towers['A'].push(i);
         }
 
-        // 更精致的乌龟SVG生成函数
         function getTurtleSVG(size, color) {
-            // size: 1~n, color: string
-            // 颜色可根据size变化
             let shellColor = color || "#8bc34a";
             let bodyColor = "#388e3c";
             let scale = 1 + (size-1)*0.13;
-            // 让大乌龟更大
-            // 精致细节：花纹、腮红、嘴巴、爪子、阴影
             return `
             <svg class="turtle-svg" viewBox="0 0 90 54" style="transform:scale(${scale});">
-                <!-- 阴影 -->
                 <ellipse cx="45" cy="48" rx="22" ry="6" fill="#b2dfdb88"/>
-                <!-- 四肢（带爪子） -->
                 <g>
                     <ellipse cx="18" cy="40" rx="7" ry="4" fill="${bodyColor}" stroke="#2e7d32" stroke-width="2"/>
                     <ellipse cx="72" cy="40" rx="7" ry="4" fill="${bodyColor}" stroke="#2e7d32" stroke-width="2"/>
                     <ellipse cx="24" cy="18" rx="5" ry="2.5" fill="${bodyColor}" stroke="#2e7d32" stroke-width="2"/>
                     <ellipse cx="66" cy="18" rx="5" ry="2.5" fill="${bodyColor}" stroke="#2e7d32" stroke-width="2"/>
-                    <!-- 爪子 -->
                     <ellipse cx="14" cy="44" rx="1.1" ry="2" fill="#795548"/>
                     <ellipse cx="22" cy="44" rx="1.1" ry="2" fill="#795548"/>
                     <ellipse cx="68" cy="44" rx="1.1" ry="2" fill="#795548"/>
@@ -445,30 +459,22 @@ html_code = """
                     <ellipse cx="63" cy="21" rx="0.8" ry="1.3" fill="#795548"/>
                     <ellipse cx="69" cy="21" rx="0.8" ry="1.3" fill="#795548"/>
                 </g>
-                <!-- 壳 -->
                 <ellipse cx="45" cy="28" rx="26" ry="16" fill="url(#shellGrad${size})" stroke="#333" stroke-width="2.2"/>
                 <ellipse cx="45" cy="28" rx="20" ry="12" fill="#fffde7" opacity="0.25"/>
                 <ellipse cx="45" cy="28" rx="12" ry="7" fill="#fffde7" opacity="0.18"/>
-                <!-- 花纹 -->
                 <g opacity="0.45">
                     <ellipse cx="45" cy="28" rx="8" ry="4.5" fill="none" stroke="#fffde7" stroke-width="2"/>
                     <ellipse cx="45" cy="28" rx="15" ry="9" fill="none" stroke="#fffde7" stroke-width="1.2"/>
                     <ellipse cx="45" cy="28" rx="22" ry="13" fill="none" stroke="#fffde7" stroke-width="0.8"/>
                 </g>
-                <!-- 头 -->
                 <ellipse cx="45" cy="10" rx="9" ry="8" fill="${bodyColor}" stroke="#2e7d32" stroke-width="2"/>
-                <!-- 眼睛 -->
                 <ellipse cx="42" cy="8.5" rx="1.7" ry="1.7" fill="#222"/>
                 <ellipse cx="48" cy="8.5" rx="1.7" ry="1.7" fill="#222"/>
-                <!-- 眼白高光 -->
                 <ellipse cx="41.5" cy="8" rx="0.5" ry="0.5" fill="#fff"/>
                 <ellipse cx="47.5" cy="8" rx="0.5" ry="0.5" fill="#fff"/>
-                <!-- 腮红 -->
                 <ellipse cx="39.5" cy="13" rx="1.2" ry="0.7" fill="#ffb6b6" opacity="0.7"/>
                 <ellipse cx="50.5" cy="13" rx="1.2" ry="0.7" fill="#ffb6b6" opacity="0.7"/>
-                <!-- 嘴巴 -->
                 <path d="M43.5,13 Q45,15 46.5,13" stroke="#ad1457" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-                <!-- SVG渐变定义 -->
                 <defs>
                     <radialGradient id="shellGrad${size}" cx="50%" cy="45%" r="70%">
                         <stop offset="0%" stop-color="#fffde7" stop-opacity="0.7"/>
@@ -483,7 +489,6 @@ html_code = """
         function render() {
             const gameDiv = document.getElementById('game');
             gameDiv.innerHTML = '';
-            // 更丰富的配色
             const turtleColors = [
                 '#8bc34a', '#4caf50', '#cddc39', '#ffb347', '#ffcc33', '#b388ff', '#40c4ff', '#ffab91',
                 '#a5d6a7', '#ffd54f', '#f48fb1', '#90caf9'
@@ -493,25 +498,19 @@ html_code = """
                 towerDiv.className = 'tower';
                 towerDiv.dataset.tower = name;
                 towerDiv.onclick = () => {
-                    if (autoDemoRunning) {
-                        autoDemoAbort = true;
-                        return;
-                    }
+                    if (autoDemoRunning) { autoDemoAbort = true; return; }
                     onTowerClick(name);
                 };
-                // 画乌龟
                 towers[name].forEach((turtle, idx) => {
                     const turtleDiv = document.createElement('div');
                     turtleDiv.className = 'turtle';
                     if (selectedTower === name && idx === towers[name].length - 1) {
                         turtleDiv.classList.add('selected');
                     }
-                    // 颜色根据size
                     let color = turtleColors[(turtle-1)%turtleColors.length];
                     turtleDiv.innerHTML = getTurtleSVG(turtle, color) + `<div class="turtle-num">${turtle}</div>`;
                     towerDiv.appendChild(turtleDiv);
                 });
-                // 填充空白
                 for (let i = towers[name].length; i < n; i++) {
                     const emptyDiv = document.createElement('div');
                     emptyDiv.style.height = '58px';
@@ -519,7 +518,6 @@ html_code = """
                     emptyDiv.style.opacity = '0';
                     towerDiv.appendChild(emptyDiv);
                 }
-                // 标签
                 const label = document.createElement('div');
                 label.className = 'tower-label';
                 label.textContent = name;
@@ -536,10 +534,8 @@ html_code = """
         }
 
         function onTowerClick(name) {
-            if (n === undefined) return;
-            if (autoDemoRunning) return;
+            if (n === undefined || autoDemoRunning) return;
             if (selectedTower === null) {
-                // 选中源堆
                 if (towers[name].length === 0) {
                     showMessage(`⚠️ ${name} 没有乌龟可选`);
                     return;
@@ -553,7 +549,6 @@ html_code = """
                     render();
                     return;
                 }
-                // 尝试移动
                 let source = selectedTower, target = name;
                 if (towers[source].length === 0) {
                     showMessage(`⚠️ 源堆 ${source} 没有乌龟！`);
@@ -567,11 +562,10 @@ html_code = """
                     towers[target].push(turtle);
                     steps += 1;
                     showMessage('');
-                    // 检查胜利
                     if (towers['C'].length === n) {
                         render();
                         showMessage(`🎉 恭喜！你用了 ${steps} 步完成叠乌龟！`, '#388e3c');
-                        n = undefined; // 禁止继续操作
+                        n = undefined;
                         return;
                     }
                 } else {
@@ -584,8 +578,7 @@ html_code = """
 
         function startGame() {
             n = parseInt(document.getElementById('input-n').value) || 3;
-            if (n < 2) n = 2;
-            if (n > 8) n = 8;
+            n = Math.max(2, Math.min(8, n));
             steps = 0;
             selectedTower = null;
             createTowers(n);
@@ -597,7 +590,6 @@ html_code = """
             document.getElementById('auto-demo-btn').textContent = "自动演示";
         }
 
-        // 汉诺塔递归解法，返回步骤序列
         function hanoiMoves(num, from, via, to, moves) {
             if (num === 0) return;
             hanoiMoves(num-1, from, to, via, moves);
@@ -605,7 +597,6 @@ html_code = """
             hanoiMoves(num-1, via, from, to, moves);
         }
 
-        // 自动演示功能
         async function autoDemo() {
             if (autoDemoRunning) {
                 autoDemoAbort = true;
@@ -618,7 +609,6 @@ html_code = """
             selectedTower = null;
             render();
 
-            // 速度档位
             let speedSelect = document.getElementById('speed-range');
             let speed = parseInt(speedSelect.value) || 500;
             let moves = [];
@@ -648,7 +638,6 @@ html_code = """
             document.getElementById('auto-demo-btn').textContent = "自动演示";
         }
 
-        // 速度档位显示
         document.addEventListener('DOMContentLoaded', function() {
             let speedSelect = document.getElementById('speed-range');
             let speedValue = document.getElementById('speed-value');
@@ -659,23 +648,42 @@ html_code = """
             speedSelect.onchange = updateSpeedLabel;
             updateSpeedLabel();
 
-            // 额外：防止iOS微信/浏览器缩放导致溢出
             document.body.style.maxWidth = "100vw";
             document.body.style.overflowX = "hidden";
+
+            // 说明按钮逻辑
+            const btn = document.getElementById('toggle-instructions-btn');
+            const insPanel = document.getElementById('instructions-panel');
+            const closeBtn = document.getElementById('close-instructions-btn');
+            btn.onclick = function() {
+                if (insPanel.style.display === "none" || insPanel.style.display === "") {
+                    insPanel.style.display = "block";
+                    btn.textContent = "隐藏游戏说明";
+                    // 滚动到说明面板
+                    setTimeout(function() {
+                        insPanel.scrollIntoView({behavior: "smooth", block: "center"});
+                    }, 50);
+                } else {
+                    insPanel.style.display = "none";
+                    btn.textContent = "显示游戏说明";
+                }
+            };
+            closeBtn.onclick = function() {
+                insPanel.style.display = "none";
+                btn.textContent = "显示游戏说明";
+            };
         });
 
         document.getElementById('start-btn').onclick = startGame;
         document.getElementById('reset-btn').onclick = startGame;
         document.getElementById('auto-demo-btn').onclick = autoDemo;
 
-        // 初始化
         startGame();
     </script>
 </body>
 </html>
 """
 
-# 将html代码写入文件（可选）
 if __name__ == "__main__":
     with open("stack_turtles.html", "w", encoding="utf-8") as f:
         f.write(html_code)
