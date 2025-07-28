@@ -1,5 +1,8 @@
-<img width="2046" height="1644" alt="msedge exe_20250728_103828" src="https://github.com/user-attachments/assets/d9516959-3b74-4e63-aa10-375db7de700e" /><img width="2046" height="1644" alt="msedge exe_20250728_103828" src="https://github.com/user-attachments/assets/e115bfba-22ab-409f-b2e8-8446c613b724" /># html小游戏
+<img width="2046" height="624" alt="msedge exe_20250728_104451" src="https://github.com/user-attachments/assets/b8c0af0a-f86f-4a15-b846-527e5563019f" />
+
+# html小游戏
 说明：**.py文件用于生成.html文件**
+
 - 小游戏合集（主界面）：index.html
 - 自动战斗生存：auto_battle_survivor.html
 - 五子棋：gomoku.html
@@ -7,6 +10,7 @@
 - 贪吃蛇：snake.html
 - 叠乌龟（汉诺克）：stack_turtles.html
 - 俄罗斯方块：tetris.html
+
 备注：**HTML文件可以直接在浏览器中打开并运行。**
 
 
