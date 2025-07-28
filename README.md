@@ -1,5 +1,5 @@
-# html小游戏
-说明：.py文件用于生成.html文件
+<img width="2046" height="1644" alt="msedge exe_20250728_103828" src="https://github.com/user-attachments/assets/d9516959-3b74-4e63-aa10-375db7de700e" /><img width="2046" height="1644" alt="msedge exe_20250728_103828" src="https://github.com/user-attachments/assets/e115bfba-22ab-409f-b2e8-8446c613b724" /># html小游戏
+说明：**.py文件用于生成.html文件**
 - 小游戏合集（主界面）：index.html
 - 自动战斗生存：auto_battle_survivor.html
 - 五子棋：gomoku.html
@@ -7,10 +7,39 @@
 - 贪吃蛇：snake.html
 - 叠乌龟（汉诺克）：stack_turtles.html
 - 俄罗斯方块：tetris.html
+备注：**HTML文件可以直接在浏览器中打开并运行。**
 
-使用浏览器可以直接打开html文件并运行游戏。
 
-# 微信直接启动GitHub小游戏的最简方式
+# HTML文件 vs Python文件
+| 维度   | HTML文件（`.html`）          | Python文件（`.py`）        |
+| ---- | ------------------------ | ---------------------- |
+| 用途   | 直接在浏览器中打开，运行网页或游戏前端界面    | 用于生成、处理或辅助构建HTML文件     |
+| 运行环境 | 浏览器（包括微信浏览器）             | Python解释器（如VSCode、终端等） |
+| 文件结构 | HTML/CSS/JS混合，内容即为“网页本体” | 通常包含HTML代码的字符串变量+写入操作等 |
+| 用户体验 | 一键打开即用，加载即运行             | 默认仅输出源码或生成HTML文件       |
+
+## ⚠️ 注意：不要直接复制.py文件内容作为HTML源码！
+<img width="2046" height="1644" alt="msedge exe_20250728_103828" src="https://github.com/user-attachments/assets/b49c3650-4cb1-484a-bd54-d8b46c77c9cf" />
+
+注意事项：==若将py文件强转为html文件，需要去除冗余信息，~~否则手机端界面将直接显示未删除的代码~~ 。
+详见如下，除了" 此处是正文... "，其余均需要删除。==
+```python
+# 叠乌龟HTML+JS图形化实现
+# 保存为 stack_turtles.html 后用浏览器打开
+
+html_code = """
+此处是正文...
+"""
+
+if __name__ == "__main__":
+    with open("stack_turtles.html", "w", encoding="utf-8") as f:
+        f.write(html_code)
+    print("已生成 stack_turtles.html，请用浏览器打开体验图形化叠乌龟游戏。")
+```
+
+
+
+# 微信直接启动GitHub小游戏的最简方式（可选拓展）
 <font color=blue>通过GitHub Pages部署HTML文件，可以让手机微信直接打开并运行游戏，而非仅看到源码。</font>
 
 ## 📌 一、为什么直接打开GitHub源码无法运行？
