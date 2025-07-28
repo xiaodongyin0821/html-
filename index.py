@@ -1,0 +1,142 @@
+import os
+
+def write_html_file(filename, html_code):
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(html_code)
+
+def get_game_html(game_key):
+    # 动态导入每个游戏的html_code变量
+    try:
+        if game_key == "auto_battle_survivor":
+            from auto_battle_survivor import html_code
+            return html_code
+        elif game_key == "gomoku":
+            from gomoku import html_code
+            return html_code
+        elif game_key == "maze":
+            from maze import html_code
+            return html_code
+        elif game_key == "snake":
+            from snake import html_code
+            return html_code
+        elif game_key == "stack_turtles":
+            from stack_turtles import html_code
+            return html_code
+        elif game_key == "tetris":
+            from tetris import html_code
+            return html_code
+        else:
+            return "<h2>未知游戏</h2>"
+    except Exception as e:
+        return f"<h2>加载游戏失败: {game_key}</h2><pre>{e}</pre>"
+
+def main():
+    # 游戏列表 (中文名, 英文key)
+    games = [
+        ("自动战斗生存", "auto_battle_survivor"),
+        ("五子棋", "gomoku"),
+        ("迷宫", "maze"),
+        ("贪吃蛇", "snake"),
+        ("叠乌龟", "stack_turtles"),
+        ("俄罗斯方块", "tetris"),
+    ]
+
+    # 生成主界面HTML
+    main_html = """
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>多合一小游戏合集</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <style>
+        html, body { height: 100%; width: 100%; margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'HarmonyOS Sans', '微软雅黑', Arial, sans-serif;
+            background: linear-gradient(135deg, #e0f7fa 0%, #fffde7 100%);
+            min-height: 100vh; min-width: 100vw; margin: 0; padding: 0;
+            display: flex; flex-direction: column; justify-content: flex-start; align-items: stretch;
+        }
+        .container { width: 100vw; max-width: 100vw; margin: 0 auto; flex: 1 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+        h1 { text-align: center; font-size: 2.2em; letter-spacing: 0.1em; color: #388e3c; margin-top: 32px; margin-bottom: 18px; text-shadow: 0 2px 8px #b2dfdb; }
+        #game-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; margin-bottom: 30px; }
+        .game-btn {
+            background: linear-gradient(90deg, #b2dfdb 0%, #81c784 100%);
+            border: none; border-radius: 12px; padding: 18px 36px; font-size: 1.25em; font-weight: bold;
+            color: #222; box-shadow: 0 2px 8px #b2dfdb55; cursor: pointer; transition: background 0.2s, box-shadow 0.2s;
+        }
+        .game-btn:hover {
+            background: linear-gradient(90deg, #81c784 0%, #b2dfdb 100%);
+            box-shadow: 0 4px 16px #26a69a55;
+        }
+        #signature { width: 100vw; max-width: 100vw; margin: 0 auto 0 auto; padding: 0; display: flex; justify-content: center; align-items: center; position: relative; bottom: 0; left: 0; right: 0; font-family: 'HarmonyOS Sans', '微软雅黑', Arial, sans-serif; font-size: 1.1em; color: #388e3c; letter-spacing: 0.12em; font-weight: bold; opacity: 0.85; background: rgba(255,255,255,0.7); border-radius: 0 0 18px 18px; box-shadow: 0 -2px 12px #b2dfdb33; margin-top: 10px; margin-bottom: 0; height: 38px; }
+        @media (max-width: 900px) { #signature { font-size: 0.95em; height: 28px; border-radius: 0 0 10px 10px;} }
+        @media (max-width: 600px) { #signature { font-size: 0.8em; height: 18px; border-radius: 0 0 6px 6px;} }
+        @media (max-width: 400px) { #signature { font-size: 0.7em; height: 14px; border-radius: 0 0 4px 4px;} }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>小游戏合集</h1>
+        <div id="game-list">
+"""
+    # 添加游戏按钮
+    for cname, gkey in games:
+        main_html += f'            <button class="game-btn" onclick="switchGame(\'{gkey}\')">{cname}</button>\n'
+
+    main_html += """
+        </div>
+        <div id="signature">胖墩会武术 &middot; 多合一小游戏合集</div>
+    </div>
+    <script>
+        const gameFiles = {
+"""
+    for cname, gkey in games:
+        main_html += f"            '{gkey}': '{gkey}.html',\n"
+    main_html += """        };
+
+        function switchGame(gameKey) {
+            if (gameFiles[gameKey]) {
+                window.location.href = gameFiles[gameKey];
+            }
+        }
+    </script>
+</body>
+</html>
+"""
+
+    # 生成主界面文件
+    write_html_file("index.html", main_html)
+
+    # 生成每个游戏的单独HTML文件，并在每个游戏页面左上角加返回按钮
+    for cname, gkey in games:
+        html_code = get_game_html(gkey)
+        # 插入返回按钮到每个游戏HTML的<body>后
+        insert_pos = html_code.find("<body>")
+        if insert_pos != -1:
+            insert_pos += len("<body>")
+            back_button_html = """
+    <button onclick="window.location.href='index.html'" style="
+        position: fixed;
+        top: 18px;
+        left: 18px;
+        z-index: 9999;
+        background: linear-gradient(90deg, #b2dfdb 0%, #81c784 100%);
+        border: none;
+        border-radius: 8px;
+        padding: 8px 18px;
+        font-size: 1.1em;
+        font-weight: bold;
+        color: #222;
+        box-shadow: 0 2px 8px #b2dfdb55;
+        cursor: pointer;
+        transition: background 0.2s, box-shadow 0.2s;
+    ">&larr; 返回</button>
+"""
+            html_code = html_code[:insert_pos] + back_button_html + html_code[insert_pos:]
+        write_html_file(f"{gkey}.html", html_code)
+
+    print("已生成 index.html 及所有子游戏页面，请用浏览器打开 index.html 体验多合一小游戏合集。")
+
+if __name__ == "__main__":
+    main()

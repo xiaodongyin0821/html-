@@ -1,0 +1,768 @@
+html_code = """
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>自动战斗生存游戏（原型设计）</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <style>
+        html, body { height: 100%; width: 100%; margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'HarmonyOS Sans', '微软雅黑', Arial, sans-serif;
+            background: linear-gradient(135deg, #e0f7fa 0%, #fffde7 100%);
+            min-height: 100vh; min-width: 100vw; margin: 0; padding: 0;
+            display: flex; flex-direction: column; justify-content: flex-start; align-items: stretch;
+        }
+        .container { width: 100vw; max-width: 100vw; margin: 0 auto; flex: 1 0 auto; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; }
+        h1 { text-align: center; font-size: 2.2em; letter-spacing: 0.1em; color: #388e3c; margin-top: 22px; margin-bottom: 10px; text-shadow: 0 2px 8px #b2dfdb; }
+        #top-bar { display: flex; justify-content: center; align-items: center; margin-top: 6px; margin-bottom: 0; gap: 12px; }
+        #toggle-instructions-btn { background: linear-gradient(90deg, #b2dfdb 0%, #81c784 100%); border: none; border-radius: 8px; padding: 7px 18px; font-size: 1em; font-weight: bold; color: #222; box-shadow: 0 2px 6px #b2dfdb55; cursor: pointer; transition: background 0.2s, box-shadow 0.2s; }
+        #toggle-instructions-btn:hover { background: linear-gradient(90deg, #81c784 0%, #b2dfdb 100%); box-shadow: 0 4px 12px #26a69a55; }
+        #instructions { max-width: 700px; width: 98vw; min-width: 220px; box-sizing: border-box; margin: 18px auto 0 auto; background: rgba(255,255,255,0.98); border: 1.5px solid #b2dfdb; border-radius: 12px; padding: 18px 28px 16px 28px; font-size: 15px; color: #444; line-height: 1.7; box-shadow: 0 2px 12px #b2dfdb33; display: none; transition: all 0.2s; position: relative; z-index: 10; }
+        #instructions ul, #instructions ol { margin: 10px 0 0 22px; padding-left: 0; }
+        #instructions b { font-size: 1.08em; color: #388e3c; }
+        #instructions span { display: block; margin-top: 8px; text-align: right; font-size: 0.98em; }
+        #controls { text-align: center; margin-top: 12px; font-size: 1em; }
+        #message { text-align: center; color: #d32f2f; font-size: 18px; min-height: 24px; margin-top: 6px; font-weight: bold; letter-spacing: 0.05em; }
+        #game-canvas { display: block; margin: 0 auto; background: #e0f7fa; border: 2px solid #b2dfdb; border-radius: 18px; box-shadow: 0 8px 22px #b2dfdb55; }
+        #signature { width: 100vw; max-width: 100vw; margin: 0 auto 0 auto; padding: 0; display: flex; justify-content: center; align-items: center; position: relative; bottom: 0; left: 0; right: 0; font-family: 'HarmonyOS Sans', '微软雅黑', Arial, sans-serif; font-size: 1.1em; color: #388e3c; letter-spacing: 0.12em; font-weight: bold; opacity: 0.85; background: rgba(255,255,255,0.7); border-radius: 0 0 18px 18px; box-shadow: 0 -2px 12px #b2dfdb33; margin-top: 10px; margin-bottom: 0; height: 38px; }
+        @media (max-width: 900px) { .container { max-width: 100vw; } #game-canvas { max-width: 98vw; } #signature { font-size: 0.95em; height: 28px; border-radius: 0 0 10px 10px;} #instructions { max-width: 99vw; padding: 10px 10px 8px 10px; } }
+        @media (max-width: 600px) { #instructions { padding: 7px 4vw 6px 4vw; font-size: 13px; max-width: 99vw;} .container { max-width: 100vw; } #game-canvas { max-width: 99vw;} #signature { font-size: 0.8em; height: 18px; border-radius: 0 0 6px 6px;} }
+        @media (max-width: 400px) { #signature { font-size: 0.7em; height: 14px; border-radius: 0 0 4px 4px;} }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>自动战斗生存游戏（原型）</h1>
+        <div id="top-bar">
+            <button id="toggle-instructions-btn">游戏说明</button>
+        </div>
+        <div id="instructions">
+            <b>游戏说明（优化版）：</b><br>
+            <ul>
+                <li>本游戏为自动战斗生存类原型，玩家用方向键/WASD控制移动，角色自动攻击。</li>
+                <li>每局开始可选择1种初始武器，击败敌人获得经验球，靠近自动吸收。</li>
+                <li>升级时弹出技能/武器/被动/宠物选择界面，3选1或5选1。</li>
+                <li>每种武器最多10级，每2级可选分支或进化，满级后可融合进化。</li>
+                <li>死亡可保留1件装备/技能/宠物，下一局难度提升（roguelike机制）。</li>
+                <li>每5分钟场景变化，BOSS登场，击败BOSS可获得稀有奖励。</li>
+            </ul>
+            <b>核心玩法与系统模块：</b>
+            <ol>
+                <li>
+                    <b>玩家类（Player）</b>：
+                    <ul>
+                        <li>属性：力量(STR)、敏捷(AGI)、智力(INT)、耐力(END)、运气(LUC)</li>
+                        <li>显示：血量、经验、等级、攻击力、防御、暴击率、闪避、吸收范围等</li>
+                        <li>武器栏、技能栏、宠物栏，支持多武器与技能成长</li>
+                        <li>升级时可选加点或新技能/武器/宠物</li>
+                        <li>角色形态：可显示不同武器/技能特效，血量变化有动画提示</li>
+                    </ul>
+                </li>
+                <li>
+                    <b>怪物类（Enemy）</b>：
+                    <ul>
+                        <li>类型：普通怪、精英怪、特殊怪（自爆、隐身、护盾等）</li>
+                        <li>生成逻辑：随时间推移怪物种类/密度/强度递增</li>
+                        <li>移动行为：直线追踪、绕行、远程投掷、分裂等</li>
+                        <li>攻击方式：近战、远程、范围、特殊效果（麻痹、减速等）</li>
+                        <li>形态：不同怪物有不同外观、大小、特效，精英怪有光环</li>
+                    </ul>
+                </li>
+                <li>
+                    <b>武器类（Weapon）</b>：
+                    <ul>
+                        <li>属性：伤害、攻击范围、冷却、穿透、暴击、分支升级</li>
+                        <li>升级系统：每2级可选分支，10级可融合进化，显示升级树</li>
+                        <li>攻击数值：显示当前武器伤害、攻速、范围、特殊效果</li>
+                        <li>多武器协同：可装备多把武器，自动轮流/同时攻击</li>
+                        <li>特效：火球爆炸、闪电连锁、飞刀回旋、导弹追踪、冰墙阻挡等</li>
+                    </ul>
+                </li>
+                <li>
+                    <b>经验系统</b>：
+                    <ul>
+                        <li>怪物死亡掉落经验球，靠近自动吸收，显示吸收动画</li>
+                        <li>经验条与升级提示，升级弹窗可选奖励</li>
+                        <li>经验需求线性/递增，BOSS掉落大量经验与进化核心</li>
+                    </ul>
+                </li>
+                <li>
+                    <b>BOSS机制</b>：
+                    <ul>
+                        <li>每5分钟登场，拥有多阶段技能与领域控制</li>
+                        <li>技能：冲撞、魔法、召唤、护盾、回血、地形变化等</li>
+                        <li>强化方式：血量、攻击、技能频率随难度提升</li>
+                        <li>击败BOSS掉落稀有奖励，可永久强化角色</li>
+                        <li>形态：BOSS有独特外观、技能特效、血条显示</li>
+                    </ul>
+                </li>
+                <li>
+                    <b>roguelike机制</b>：
+                    <ul>
+                        <li>死亡后可保留1件装备/技能/宠物，下一局敌人更强</li>
+                        <li>每保留1件，敌人基础生命+5%、攻击+3%、密度+10%</li>
+                        <li>支持多轮继承，难度动态平衡</li>
+                        <li>显示继承内容与难度提升提示</li>
+                    </ul>
+                </li>
+                <li>
+                    <b>游戏主循环</b>：
+                    <ul>
+                        <li>地图刷新、事件监听、碰撞检测、时间推进、关卡切换</li>
+                        <li>支持暂停、重开、难度选择、进度保存</li>
+                        <li>UI优化：属性面板、武器/技能/宠物详细信息、升级树、BOSS警告等</li>
+                    </ul>
+                </li>
+                <li>
+                    <b>更多优化建议</b>：
+                    <ul>
+                        <li>属性面板：显示所有基础属性、武器/技能详细数值、暴击/闪避/吸收范围等</li>
+                        <li>攻击数值：每次攻击/暴击/吸收有数值飘字动画</li>
+                        <li>角色和怪兽形态：不同武器/技能/怪物有独特外观和动画</li>
+                        <li>地图与环境：每5分钟切换主题，环境影响怪物/玩家属性</li>
+                        <li>事件系统：祭坛、宝箱、传送门等，带来特殊奖励或挑战</li>
+                        <li>音效与特效：攻击、升级、BOSS登场、死亡等有音效和视觉特效</li>
+                        <li>支持多语言切换、移动端适配、存档与成就系统</li>
+                    </ul>
+                </li>
+            </ol>
+            <span style="color:#888;">本页面为玩法原型与系统说明，后续可扩展完整可玩版本。</span>
+        </div>
+        <div id="controls">
+            <span>选择初始武器：</span>
+            <select id="weapon-select">
+                <option value="fireball">火球术</option>
+                <option value="lightning_ring">电击环</option>
+                <option value="dagger">飞刀乱舞</option>
+                <option value="missile">导弹追踪</option>
+                <option value="icewall">冰墙防护</option>
+            </select>
+            <button id="start-btn">开始游戏</button>
+            <button id="reset-btn">重置</button>
+        </div>
+        <div id="main-game-area" style="display:flex;flex-direction:column;align-items:center;">
+            <canvas id="game-canvas" width="640" height="400"></canvas>
+            <div id="message"></div>
+        </div>
+    </div>
+    <div id="signature">胖墩会武术 &middot; 自动战斗生存游戏原型</div>
+    <script>
+    // =========================
+    // 优化版：核心类与模块结构说明
+    // =========================
+
+    // 玩家类
+    class Player {
+        constructor() {
+            this.x = 320; this.y = 200;
+            this.radius = 18;
+            this.color = "#388e3c";
+            this.hp = 100; this.maxHp = 100;
+            this.exp = 0; this.level = 1;
+            this.expToNext = 100;
+            this.str = 5; this.agi = 5; this.int = 5; this.end = 5; this.luc = 5;
+            this.weaponSlots = 1;
+            this.weapons = [];
+            this.skills = [];
+            this.pets = [];
+            this.alive = true;
+            this.invincible = 0;
+            this.crit = 0.05;
+            this.dodge = 0.03;
+            this.absorbRange = 80;
+        }
+        getAttack() {
+            let atk = 0;
+            for (let w of this.weapons) {
+                atk += w.getDamage(this);
+            }
+            return atk;
+        }
+        getDefense() {
+            return this.end * 2;
+        }
+        getCritRate() {
+            return this.crit + this.agi * 0.005 + this.luc * 0.002;
+        }
+        getDodgeRate() {
+            return this.dodge + this.agi * 0.004 + this.luc * 0.001;
+        }
+        getAbsorbRange() {
+            return this.absorbRange + this.luc * 2;
+        }
+    }
+
+    // 武器类
+    class Weapon {
+        constructor(type, level=1) {
+            this.type = type;
+            this.level = level;
+            this.def = Weapon.DEFS[type];
+        }
+        getDamage(player) {
+            let base = this.def.baseDmg;
+            let scale = player[this.def.scale] || 0;
+            let bonus = this.level * 3;
+            return Math.round(base + scale * 2 + bonus);
+        }
+        getCooldown() {
+            return Math.max(200, this.def.cooldown - this.level * 30);
+        }
+        getRange() {
+            return this.def.aoe + this.level * 4;
+        }
+        getDesc() {
+            return `${this.def.name} Lv.${this.level}：${this.getDamage({[this.def.scale]: 5})}伤害，${this.getRange()}范围，${this.getCooldown()}ms冷却`;
+        }
+    }
+    Weapon.DEFS = {
+        fireball: {
+            name: "火球术", desc: "范围爆炸型法术", color: "#ff7043", baseDmg: 15, type: "magic", scale: "int", cooldown: 1000, aoe: 40,
+            upgrades: ["火球数量+1", "爆炸范围+10", "分裂火球/灼烧", "伤害+20%", "双子火球/连锁爆炸", "爆炸范围+20", "伤害+30%", "融合进化", "业火龙息"]
+        },
+        lightning_ring: {
+            name: "电击环", desc: "环绕型持续输出", color: "#40c4ff", baseDmg: 8, type: "magic", scale: "int", cooldown: 500, aoe: 60,
+            upgrades: ["电环+1", "连锁电击/麻痹", "半径+10", "伤害+20%", "连锁深度+2", "融合进化", "四环电流网"]
+        },
+        dagger: {
+            name: "飞刀乱舞", desc: "投掷穿透型", color: "#b388ff", baseDmg: 12, type: "phys", scale: "str", cooldown: 500, aoe: 0,
+            upgrades: ["飞刀+1", "穿透+1/回旋", "暴击+10%", "伤害+20%", "融合进化", "幽冥幻刃"]
+        },
+        missile: {
+            name: "导弹追踪", desc: "自动追踪爆炸", color: "#ffd54f", baseDmg: 20, type: "magic", scale: "int", cooldown: 1200, aoe: 30,
+            upgrades: ["导弹+1", "爆炸溅射", "点燃/冻结", "连锁爆炸", "融合进化", "终极导弹"]
+        },
+        icewall: {
+            name: "冰墙防护", desc: "阻挡冻结", color: "#90caf9", baseDmg: 0, type: "control", scale: "end", cooldown: 4000, aoe: 60,
+            upgrades: ["冰墙+1", "持续+2s", "冻结/反弹", "墙体+1", "融合进化", "永冻终界"]
+        }
+    };
+
+    // 怪物类
+    class Enemy {
+        constructor(type, x, y, difficulty=1) {
+            this.type = type;
+            this.def = Enemy.DEFS[type];
+            this.x = x; this.y = y;
+            this.radius = this.def.elite ? 22 : 14;
+            this.maxHp = Math.round(this.def.hp * difficulty);
+            this.hp = this.maxHp;
+            this.speed = this.def.speed * (1 + 0.05 * (difficulty-1));
+            this.dmg = Math.round(this.def.dmg * (1 + 0.03 * (difficulty-1)));
+            this.exp = Math.round(this.def.exp * difficulty);
+            this.color = this.def.color;
+            this.stealth = this.def.stealth || false;
+            this.elite = this.def.elite || false;
+            this.suicide = this.def.suicide || false;
+            this.shield = this.def.shield || false;
+        }
+        static randomType(stage) {
+            let keys = Object.keys(Enemy.DEFS);
+            let idx = Math.floor(Math.random() * Math.min(1 + Math.floor(stage/2), keys.length));
+            return keys[idx];
+        }
+    }
+    Enemy.DEFS = {
+        crawler: {name: "小型爬虫", color: "#8bc34a", hp: 20, speed: 1.2, dmg: 5, exp: 10},
+        thrower: {name: "远程投掷者", color: "#ffb347", hp: 30, speed: 1.0, dmg: 8, exp: 20},
+        minebug: {name: "地雷虫", color: "#ff7043", hp: 18, speed: 1.5, dmg: 15, exp: 15, suicide: true},
+        shield: {name: "护盾怪", color: "#1976d2", hp: 60, speed: 0.7, dmg: 10, exp: 40, shield: true},
+        stealth: {name: "隐形怪", color: "#888", hp: 25, speed: 1.3, dmg: 7, exp: 18, stealth: true},
+        suicide: {name: "自爆怪", color: "#d32f2f", hp: 15, speed: 1.7, dmg: 20, exp: 25, suicide: true},
+        elite: {name: "精英怪", color: "#ad1457", hp: 120, speed: 1.0, dmg: 18, exp: 80, elite: true}
+    };
+
+    // BOSS类
+    class Boss {
+        constructor(stage, difficulty=1) {
+            let def = Boss.DEFS[Math.min(stage, Boss.DEFS.length-1)];
+            this.name = def.name;
+            this.color = def.color;
+            this.x = 320; this.y = 80;
+            this.radius = 48;
+            this.maxHp = Math.round(def.hp * difficulty);
+            this.hp = this.maxHp;
+            this.speed = def.speed * (1 + 0.05 * (difficulty-1));
+            this.dmg = Math.round(def.dmg * (1 + 0.03 * (difficulty-1)));
+            this.exp = Math.round(def.exp * difficulty);
+            this.skills = def.skills;
+            this.stage = stage;
+        }
+    }
+    Boss.DEFS = [
+        {name: "铁甲巨兽", color: "#616161", hp: 1000, speed: 0.8, dmg: 30, exp: 1000, skills: ["冲撞", "周期喷射"]},
+        {name: "虚空魔导", color: "#512da8", hp: 1800, speed: 1.0, dmg: 40, exp: 2000, skills: ["大范围魔法", "召唤小怪", "护盾"]},
+        {name: "恶魔火龙", color: "#ff5722", hp: 2500, speed: 1.2, dmg: 55, exp: 3000, skills: ["飞行", "追踪火焰", "地面熔岩", "回血"]},
+        {name: "虚拟黑神", color: "#222", hp: 4000, speed: 1.5, dmg: 70, exp: 5000, skills: ["多阶段", "视角缩放", "地图变换"]}
+    ];
+
+    // 经验球
+    class ExpBall {
+        constructor(x, y, exp) {
+            this.x = x; this.y = y; this.exp = exp;
+        }
+    }
+
+    // 游戏主循环与全局变量
+    let player = new Player();
+    let enemies = [];
+    let expBalls = [];
+    let projectiles = [];
+    let boss = null;
+    let gameState = "ready"; // ready, running, levelup, gameover
+    let gameTime = 0; // ms
+    let lastEnemySpawn = 0;
+    let lastBossTime = 0;
+    let difficulty = 1; // roguelike难度
+
+    // =========================
+    // 画布与UI
+    // =========================
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function drawPlayer() {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(player.x, player.y, player.radius, 0, 2 * Math.PI);
+        ctx.fillStyle = player.color;
+        ctx.shadowColor = "#b2dfdb";
+        ctx.shadowBlur = 10;
+        ctx.fill();
+        ctx.restore();
+
+        // HP条
+        ctx.save();
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(player.x - 22, player.y - player.radius - 18, 44, 7);
+        ctx.fillStyle = "#388e3c";
+        ctx.fillRect(player.x - 22, player.y - player.radius - 18, 44 * (player.hp / player.maxHp), 7);
+        ctx.strokeStyle = "#1976d2";
+        ctx.strokeRect(player.x - 22, player.y - player.radius - 18, 44, 7);
+        ctx.restore();
+
+        // 属性面板
+        ctx.save();
+        ctx.font = "bold 13px Arial";
+        ctx.fillStyle = "#1976d2";
+        ctx.fillText(`STR:${player.str} AGI:${player.agi} INT:${player.int} END:${player.end} LUC:${player.luc}`, 12, 90);
+        ctx.fillStyle = "#888";
+        ctx.fillText(`攻:${player.getAttack()} 防:${player.getDefense()} 暴击:${(player.getCritRate()*100).toFixed(1)}% 闪避:${(player.getDodgeRate()*100).toFixed(1)}% 吸收:${player.getAbsorbRange()}`, 12, 110);
+        ctx.restore();
+    }
+
+    function drawEnemies() {
+        for (let e of enemies) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(e.x, e.y, e.radius, 0, 2 * Math.PI);
+            ctx.fillStyle = e.color;
+            ctx.globalAlpha = e.stealth ? 0.4 : 1;
+            ctx.shadowColor = "#b2dfdb";
+            ctx.shadowBlur = e.elite ? 18 : 6;
+            ctx.fill();
+            ctx.restore();
+
+            // HP条
+            ctx.save();
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(e.x - 14, e.y - e.radius - 12, 28, 5);
+            ctx.fillStyle = "#d32f2f";
+            ctx.fillRect(e.x - 14, e.y - e.radius - 12, 28 * (e.hp / e.maxHp), 5);
+            ctx.strokeStyle = "#1976d2";
+            ctx.strokeRect(e.x - 14, e.y - e.radius - 12, 28, 5);
+            ctx.restore();
+        }
+    }
+
+    function drawProjectiles() {
+        for (let p of projectiles) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, 2 * Math.PI);
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = 0.85;
+            ctx.shadowColor = "#fffde7";
+            ctx.shadowBlur = 8;
+            ctx.fill();
+            ctx.restore();
+        }
+    }
+
+    function drawExpBalls() {
+        for (let b of expBalls) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, 7, 0, 2 * Math.PI);
+            ctx.fillStyle = "#ffd54f";
+            ctx.globalAlpha = 0.8;
+            ctx.shadowColor = "#fffde7";
+            ctx.shadowBlur = 8;
+            ctx.fill();
+            ctx.restore();
+        }
+    }
+
+    function drawBoss() {
+        if (!boss) return;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(boss.x, boss.y, boss.radius, 0, 2 * Math.PI);
+        ctx.fillStyle = boss.color;
+        ctx.shadowColor = "#ff7043";
+        ctx.shadowBlur = 24;
+        ctx.fill();
+        ctx.restore();
+
+        // HP条
+        ctx.save();
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(boss.x - 60, boss.y - boss.radius - 24, 120, 12);
+        ctx.fillStyle = "#d32f2f";
+        ctx.fillRect(boss.x - 60, boss.y - boss.radius - 24, 120 * (boss.hp / boss.maxHp), 12);
+        ctx.strokeStyle = "#1976d2";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(boss.x - 60, boss.y - boss.radius - 24, 120, 12);
+        ctx.restore();
+
+        // BOSS技能提示
+        ctx.save();
+        ctx.font = "bold 15px Arial";
+        ctx.fillStyle = "#ff7043";
+        ctx.fillText(`BOSS技能: ${boss.skills.join("、")}`, boss.x - 60, boss.y + boss.radius + 24);
+        ctx.restore();
+    }
+
+    function drawUI() {
+        ctx.save();
+        ctx.font = "bold 16px Arial";
+        ctx.fillStyle = "#388e3c";
+        ctx.fillText(`等级: ${player.level}  经验: ${player.exp}/${player.expToNext}`, 12, 24);
+        ctx.fillText(`HP: ${player.hp}/${player.maxHp}`, 12, 44);
+        ctx.fillText(`武器: ${player.weapons.map(w=>Weapon.DEFS[w.type].name+"(Lv"+w.level+")").join("、")}`, 12, 64);
+        ctx.restore();
+    }
+
+    function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawPlayer();
+        drawEnemies();
+        drawProjectiles();
+        drawExpBalls();
+        drawBoss();
+        drawUI();
+    }
+
+    // =========================
+    // 游戏主循环与逻辑
+    // =========================
+
+    // 移动控制
+    let keyState = {};
+    document.addEventListener('keydown', e => { keyState[e.key.toLowerCase()] = true; });
+    document.addEventListener('keyup', e => { keyState[e.key.toLowerCase()] = false; });
+
+    function movePlayer(dt) {
+        let speed = 2.2 + player.agi * 0.08;
+        let dx = 0, dy = 0;
+        if (keyState['arrowup'] || keyState['w']) dy -= 1;
+        if (keyState['arrowdown'] || keyState['s']) dy += 1;
+        if (keyState['arrowleft'] || keyState['a']) dx -= 1;
+        if (keyState['arrowright'] || keyState['d']) dx += 1;
+        if (dx !== 0 || dy !== 0) {
+            let len = Math.sqrt(dx*dx + dy*dy);
+            dx /= len; dy /= len;
+            player.x += dx * speed * dt/16;
+            player.y += dy * speed * dt/16;
+            // 边界限制
+            player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
+            player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
+        }
+    }
+
+    // 敌人生成
+    function spawnEnemy() {
+        let stage = Math.floor(gameTime/120000);
+        let type = Enemy.randomType(stage);
+        let edge = Math.floor(Math.random()*4);
+        let x = edge === 0 ? 0 : edge === 1 ? canvas.width : Math.random()*canvas.width;
+        let y = edge === 2 ? 0 : edge === 3 ? canvas.height : Math.random()*canvas.height;
+        let e = new Enemy(type, x, y, difficulty);
+        enemies.push(e);
+    }
+
+    // BOSS生成
+    function spawnBoss() {
+        let idx = Math.min(Math.floor(gameTime/300000), Boss.DEFS.length-1);
+        boss = new Boss(idx, difficulty);
+    }
+
+    // 经验球吸收
+    function absorbExp() {
+        for (let i = expBalls.length-1; i >= 0; i--) {
+            let b = expBalls[i];
+            let dx = b.x - player.x, dy = b.y - player.y;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < player.getAbsorbRange()) {
+                // 吸附
+                b.x -= dx * 0.12;
+                b.y -= dy * 0.12;
+            }
+            if (dist < player.radius + 8) {
+                player.exp += b.exp || 10;
+                expBalls.splice(i,1);
+            }
+        }
+    }
+
+    // 升级
+    function checkLevelUp() {
+        while (player.exp >= player.expToNext) {
+            player.exp -= player.expToNext;
+            player.level += 1;
+            player.expToNext = 100 + player.level * 50;
+            showLevelUp();
+        }
+    }
+
+    // 显示升级界面
+    function showLevelUp() {
+        gameState = "levelup";
+        let msg = "<b>升级！请选择一项：</b><br>";
+        msg += "<button onclick='window.selectUpgrade(0)'>武器升级</button> ";
+        msg += "<button onclick='window.selectUpgrade(1)'>被动强化</button> ";
+        msg += "<button onclick='window.selectUpgrade(2)'>宠物召唤</button>";
+        document.getElementById('message').innerHTML = msg;
+    }
+    window.selectUpgrade = function(idx) {
+        if (idx === 0) {
+            // 武器升级
+            if (player.weapons.length > 0) {
+                player.weapons[0].level += 1;
+            }
+        } else if (idx === 1) {
+            // 被动强化
+            player.str += 1;
+            player.agi += 1;
+            player.int += 1;
+            player.end += 1;
+            player.luc += 1;
+        } else if (idx === 2) {
+            // 宠物召唤
+            player.pets.push({type: "wolf", level: 1});
+        }
+        document.getElementById('message').innerHTML = "";
+        gameState = "running";
+    };
+
+    // 武器自动攻击
+    let lastAttack = 0;
+    function autoAttack(now) {
+        if (player.weapons.length === 0) return;
+        for (let w of player.weapons) {
+            let def = Weapon.DEFS[w.type];
+            if (!w._lastAttack) w._lastAttack = 0;
+            if (now - w._lastAttack > w.getCooldown()) {
+                // 寻找最近敌人
+                let target = null, minDist = 99999;
+                for (let e of enemies) {
+                    let dx = e.x - player.x, dy = e.y - player.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        target = e;
+                    }
+                }
+                if (target) {
+                    // 发射弹幕
+                    let angle = Math.atan2(target.y - player.y, target.x - player.x);
+                    projectiles.push({
+                        x: player.x + Math.cos(angle)*player.radius,
+                        y: player.y + Math.sin(angle)*player.radius,
+                        vx: Math.cos(angle)*4,
+                        vy: Math.sin(angle)*4,
+                        radius: 7,
+                        color: def.color,
+                        dmg: w.getDamage(player),
+                        aoe: w.getRange(),
+                        from: "player"
+                    });
+                    w._lastAttack = now;
+                }
+            }
+        }
+    }
+
+    // 弹幕与敌人碰撞
+    function handleProjectiles() {
+        for (let i = projectiles.length-1; i >= 0; i--) {
+            let p = projectiles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            // 超出边界
+            if (p.x < 0 || p.x > canvas.width || p.y < 0 || p.y > canvas.height) {
+                projectiles.splice(i,1);
+                continue;
+            }
+            // 碰撞敌人
+            for (let j = enemies.length-1; j >= 0; j--) {
+                let e = enemies[j];
+                let dx = e.x - p.x, dy = e.y - p.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < e.radius + p.radius) {
+                    e.hp -= p.dmg;
+                    if (e.hp <= 0) {
+                        expBalls.push(new ExpBall(e.x, e.y, e.exp));
+                        enemies.splice(j,1);
+                    }
+                    projectiles.splice(i,1);
+                    break;
+                }
+            }
+        }
+    }
+
+    // 敌人移动与攻击
+    function moveEnemies(dt) {
+        for (let e of enemies) {
+            let dx = player.x - e.x, dy = player.y - e.y;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist > 1) {
+                e.x += dx / dist * e.speed * dt/16;
+                e.y += dy / dist * e.speed * dt/16;
+            }
+            // 攻击玩家
+            if (dist < e.radius + player.radius) {
+                if (player.invincible <= 0) {
+                    // 闪避判定
+                    if (Math.random() < player.getDodgeRate()) continue;
+                    player.hp -= e.dmg;
+                    player.invincible = 30;
+                    if (player.hp <= 0) {
+                        player.hp = 0;
+                        gameOver();
+                    }
+                }
+            }
+        }
+        if (player.invincible > 0) player.invincible -= 1;
+    }
+
+    // BOSS移动与攻击（简化）
+    function moveBoss(dt) {
+        if (!boss) return;
+        let dx = player.x - boss.x, dy = player.y - boss.y;
+        let dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist > 1) {
+            boss.x += dx / dist * boss.speed * dt/16;
+            boss.y += dy / dist * boss.speed * dt/16;
+        }
+        // 攻击玩家
+        if (dist < boss.radius + player.radius) {
+            if (player.invincible <= 0) {
+                if (Math.random() < player.getDodgeRate()) return;
+                player.hp -= boss.dmg;
+                player.invincible = 60;
+                if (player.hp <= 0) {
+                    player.hp = 0;
+                    gameOver();
+                }
+            }
+        }
+    }
+
+    // 游戏结束
+    function gameOver() {
+        gameState = "gameover";
+        document.getElementById('message').innerHTML = "<b style='color:#d32f2f;'>游戏结束！</b><br>你可以保留一件装备/技能/宠物，下一局难度提升。";
+        // roguelike机制：下局难度提升
+        difficulty += 1;
+    }
+
+    // 主循环
+    let lastFrame = performance.now();
+    function gameLoop(now) {
+        let dt = now - lastFrame;
+        lastFrame = now;
+        if (gameState === "running") {
+            gameTime += dt;
+            movePlayer(dt);
+            moveEnemies(dt);
+            moveBoss(dt);
+            autoAttack(now);
+            handleProjectiles();
+            absorbExp();
+            checkLevelUp();
+
+            // 敌人生成
+            if (now - lastEnemySpawn > 1200 - Math.min(gameTime/60, 800)) {
+                spawnEnemy();
+                lastEnemySpawn = now;
+            }
+            // BOSS生成
+            if (gameTime - lastBossTime > 300000 && !boss) {
+                spawnBoss();
+                lastBossTime = gameTime;
+            }
+        }
+        render();
+        requestAnimationFrame(gameLoop);
+    }
+
+    // =========================
+    // UI与初始化
+    // =========================
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // 说明按钮折叠
+        const btn = document.getElementById('toggle-instructions-btn');
+        const inst = document.getElementById('instructions');
+        btn.onclick = function() {
+            if (inst.style.display === 'none' || inst.style.display === '') {
+                inst.style.display = 'block';
+                btn.textContent = '收起说明';
+            } else {
+                inst.style.display = 'none';
+                btn.textContent = '游戏说明';
+            }
+        };
+
+        // 开始游戏
+        document.getElementById('start-btn').onclick = function() {
+            // 重置所有
+            player = new Player();
+            enemies = [];
+            expBalls = [];
+            projectiles = [];
+            boss = null;
+            gameTime = 0;
+            lastEnemySpawn = 0;
+            lastBossTime = 0;
+            gameState = "running";
+            document.getElementById('message').innerHTML = "";
+            // 选武器
+            let wtype = document.getElementById('weapon-select').value;
+            player.weapons.push(new Weapon(wtype, 1));
+        };
+
+        // 重置
+        document.getElementById('reset-btn').onclick = function() {
+            location.reload();
+        };
+    });
+
+    // 启动主循环
+    requestAnimationFrame(gameLoop);
+
+    // 初始渲染
+    render();
+    </script>
+</body>
+</html>
+"""
+
+if __name__ == "__main__":
+    with open("auto_battle_survivor.html", "w", encoding="utf-8") as f:
+        f.write(html_code)
+    print("已生成 auto_battle_survivor.html，请用浏览器打开体验自动战斗生存游戏原型与详细系统说明。")
