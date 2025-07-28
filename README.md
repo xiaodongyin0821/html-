@@ -14,8 +14,8 @@
 <font color=blue>通过GitHub Pages部署HTML文件，可以让手机微信直接打开并运行游戏，而非仅看到源码。</font>
 
 ## 📌 一、为什么直接打开GitHub源码无法运行？
-原因分析：当访问类似 https://github.com/xiaodongyin0821/html-/blob/main/stack_turtles.html 的链接时，看到的只是源码展示页，不是网页的运行页面。
-解决方案：使用GitHub Pages托管，让HTML文件以网页形式呈现。
+- 原因分析：当访问类似 https://github.com/xiaodongyin0821/html-/blob/main/stack_turtles.html 的链接时，看到的只是源码展示页，不是网页的运行页面。
+- 解决方案：使用GitHub Pages托管，让HTML文件以网页形式呈现。
 
 ## 🛠️ 二、GitHub Pages部署流程（只需设置一次）
 
@@ -43,5 +43,5 @@
 如需托管多个HTML游戏或页面，只需将多个.html文件放入同一仓库的根目录或子目录，使用对应的访问路径访问即可：
 | 文件名                 | 访问地址                                                        |
 | ------------------- | ----------------------------------------------------------- |
-| `game1.html`        | `https://xiaodongyin0821.github.io/html-/game1.html`        |
-| `games/stack2.html` | `https://xiaodongyin0821.github.io/html-/games/stack2.html` |
+| `game11.html`        | `https://xiaodongyin0821.github.io/html-/game11.html`        |
+| `game/game22.html` | `https://xiaodongyin0821.github.io/html-/game/game22.html` |
