@@ -3,9 +3,9 @@ html_code = """
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>切水果游戏</title>
+    <title>水果忍者</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     <style>
         html, body {
             height: 100%;
@@ -15,16 +15,19 @@ html_code = """
             box-sizing: border-box;
         }
         body {
-            font-family: 'Luckiest Guy', 'HarmonyOS Sans', '微软雅黑', Arial, sans-serif;
-            background: radial-gradient(ellipse at top, #fffbe7 0%, #ffe082 100%);
+            font-family: 'Luckiest Guy', 'Orbitron', Arial, sans-serif;
+            background: radial-gradient(ellipse at 60% 40%, #fffbe7 0%, #ffe082 60%, #ffd54f 100%), 
+                        linear-gradient(135deg, #ffecb3 0%, #ff9800 100%);
             min-height: 100vh;
             min-width: 100vw;
-            margin: 0;
-            padding: 0;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
             align-items: stretch;
+            animation: bgmove 12s linear infinite alternate;
+        }
+        @keyframes bgmove {
+            0% { background-position: 0% 0%, 100% 100%; }
+            100% { background-position: 100% 100%, 0% 0%; }
         }
         .container {
             width: 100vw;
@@ -39,106 +42,107 @@ html_code = """
         h1 {
             text-align: center;
             font-size: 2.2em;
-            letter-spacing: 0.1em;
-            color: #ff5722;
-            margin-top: 10px;
-            margin-bottom: 2px;
-            text-shadow: 0 4px 16px #fff3e0, 0 1px 0 #fff;
-            font-family: 'Luckiest Guy', cursive, sans-serif;
+            color: #fff;
+            margin-top: 22px;
+            margin-bottom: 8px;
+            text-shadow: 0 8px 32px #ff9800, 0 2px 0 #fff, 0 0 16px #ffd54f, 0 0 40px #ff5722;
+            font-family: 'Orbitron', 'Luckiest Guy', cursive, sans-serif;
+            user-select: none;
+            background: linear-gradient(90deg, #ff9800 10%, #ffd600 50%, #ff4081 90%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 12px #ffb30088);
         }
         #top-bar {
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-top: 2px;
-            margin-bottom: 0;
-            gap: 10px;
+            margin-top: 10px;
+            gap: 18px;
         }
-        #toggle-instructions-btn {
-            background: linear-gradient(90deg, #ffe082 0%, #ffb300 100%);
+        #toggle-instructions-btn, #mode-btn, #option-btn, #music-btn, #start-btn {
+            background: linear-gradient(90deg, #ffd600 0%, #ff9800 100%);
             border: none;
-            border-radius: 12px;
-            padding: 7px 18px;
+            border-radius: 14px;
+            padding: 9px 22px;
             font-size: 1em;
             font-weight: bold;
             color: #222;
-            box-shadow: 0 2px 8px #ffecb355;
+            box-shadow: 0 2px 12px #ffecb355;
             cursor: pointer;
-            transition: background 0.2s, box-shadow 0.2s;
+            margin-left: 10px;
         }
-        #toggle-instructions-btn:hover {
-            background: linear-gradient(90deg, #ffb300 0%, #ffe082 100%);
-            box-shadow: 0 4px 16px #ffb30055;
+        #music-btn {
+            font-size: 1.3em;
+            padding: 9px 14px;
+            border-radius: 50%;
+            background: #fffde7;
+            color: #ffb300;
+            border: 2px solid #ffd600;
+            margin-left: 0;
+            box-shadow: 0 2px 8px #ffd60055;
+        }
+        #music-btn.on {
+            background: #ffd600;
+            color: #d32f2f;
         }
         #instructions {
-            max-width: 420px;
-            width: 95vw;
+            max-width: 540px;
+            width: 98vw;
             min-width: 200px;
-            box-sizing: border-box;
-            margin: 10px auto 0 auto;
+            margin: 18px auto 0 auto;
             background: rgba(255,255,255,0.98);
-            border: 2px solid #ffe082;
-            border-radius: 14px;
-            padding: 12px 18px 10px 18px;
-            font-size: 15px;
-            color: #444;
+            border: 3px solid #ffd600;
+            border-radius: 22px;
+            padding: 20px 28px 18px 28px;
+            font-size: 16px;
+            color: #333;
             line-height: 1.7;
-            box-shadow: 0 2px 16px #ffe08233;
+            box-shadow: 0 4px 32px #ffd54f55;
             display: none;
-            transition: all 0.2s;
             position: relative;
             z-index: 10;
         }
-        #instructions ul, #instructions ol {
-            margin: 8px 0 0 18px;
-            padding-left: 0;
-        }
-        #instructions b {
-            font-size: 1.08em;
-            color: #e65100;
-        }
-        #instructions span {
-            display: block;
-            margin-top: 8px;
-            text-align: right;
-            font-size: 0.98em;
-        }
         #controls {
             text-align: center;
-            margin-top: 6px;
-            font-size: 1em;
+            margin-top: 16px;
         }
         #message {
             text-align: center;
             color: #d32f2f;
-            font-size: 18px;
-            min-height: 24px;
-            margin-top: 6px;
+            font-size: 20px;
+            min-height: 32px;
+            margin-top: 14px;
             font-weight: bold;
-            letter-spacing: 0.05em;
-            text-shadow: 0 2px 8px #fff3e0;
+            letter-spacing: 0.09em;
+            text-shadow: 0 2px 12px #fff3e0;
         }
-        #score, #combo, #mode, #lives {
+        #score, #combo, #mode, #lives, #highscore {
             text-align: center;
             margin: 0;
             font-size: 18px;
             color: #e65100;
             font-weight: bold;
-            letter-spacing: 0.07em;
+            letter-spacing: 0.11em;
             user-select: none;
             display: inline-block;
             margin-right: 12px;
+            text-shadow: 0 2px 8px #fffbe7;
+        }
+        #highscore {
+            color: #1976d2;
+            font-size: 16px;
+            margin-right: 0;
         }
         #combo {
             color: #ff4081;
             font-size: 16px;
             margin-left: 0;
             margin-right: 12px;
-            transition: color 0.2s;
         }
         #mode {
             color: #1976d2;
-            font-size: 15px;
+            font-size: 16px;
             margin-left: 0;
             margin-right: 12px;
         }
@@ -147,50 +151,34 @@ html_code = """
             font-size: 16px;
             margin-right: 0;
         }
-        #start-btn, #reset-btn, #mode-btn, #music-btn {
-            margin-left: 6px;
-            background: linear-gradient(90deg, #ffe082 0%, #ffb300 100%);
-            border: none;
-            border-radius: 9px;
-            padding: 6px 14px;
-            font-size: 1em;
-            font-weight: bold;
-            color: #222;
-            box-shadow: 0 2px 8px #ffecb355;
-            cursor: pointer;
-            transition: background 0.2s, box-shadow 0.2s;
-        }
-        #start-btn:hover, #reset-btn:hover, #mode-btn:hover, #music-btn:hover {
-            background: linear-gradient(90deg, #ffb300 0%, #ffe082 100%);
-            box-shadow: 0 4px 16px #ffb30055;
-        }
         #game-area {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: 0;
-            margin-bottom: 0;
             width: 100vw;
             max-width: 100vw;
             box-sizing: border-box;
         }
         #game-canvas {
-            background: linear-gradient(180deg, #fffde7 60%, #ffe082 100%);
-            border-radius: 18px;
-            box-shadow: 0 8px 22px #ffecb355;
-            border: 2px solid #ffe082;
+            background: repeating-linear-gradient(135deg, #fffde7 0 40px, #ffe082 40px 80px, #ffd54f 80px 120px, #fffde7 120px 160px);
+            border-radius: 32px;
+            box-shadow: 0 12px 48px #ffecb355, 0 0px 0px #fff;
+            border: 4px solid #ffd600;
             margin: 0 auto;
             display: block;
             touch-action: none;
-            margin-top: 8px;
+            margin-top: 18px;
+        }
+        #game-canvas.frozen {
+            box-shadow: 0 0 40px #1976d2cc, 0 12px 48px #ffecb355;
+            filter: blur(2px) grayscale(0.6) brightness(1.1);
         }
         #status-bar {
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-top: 4px;
-            margin-bottom: 0;
-            gap: 8px;
+            margin-top: 12px;
+            gap: 12px;
         }
         #signature {
             width: 100vw;
@@ -200,39 +188,18 @@ html_code = """
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            font-family: 'Luckiest Guy', 'HarmonyOS Sans', '微软雅黑', Arial, sans-serif;
+            font-family: 'Orbitron', 'Luckiest Guy', Arial, sans-serif;
             font-size: 1em;
-            color: #e65100;
-            letter-spacing: 0.12em;
+            color: #fff;
+            letter-spacing: 0.18em;
             font-weight: bold;
-            opacity: 0.85;
-            background: rgba(255,255,255,0.7);
-            border-radius: 0 0 18px 18px;
-            box-shadow: 0 -2px 12px #ffe08233;
-            margin-top: 6px;
-            margin-bottom: 0;
-            height: 28px;
-        }
-        @media (max-width: 900px) {
-            .container { max-width: 100vw; }
-            #game-canvas { max-width: 98vw; }
-            #signature { font-size: 0.95em; height: 22px; border-radius: 0 0 10px 10px;}
-            #instructions { max-width: 99vw; padding: 8px 8px 6px 8px; }
-        }
-        @media (max-width: 600px) {
-            #instructions { padding: 5px 2vw 4px 2vw; font-size: 12px; max-width: 99vw;}
-            .container { max-width: 100vw; }
-            #game-area { margin-top: 2px; }
-            #game-canvas { max-width: 99vw;}
-            #score, #combo, #mode, #lives { font-size: 12px; }
-            #signature { font-size: 0.8em; height: 14px; border-radius: 0 0 6px 6px;}
-        }
-        @media (max-width: 400px) {
-            #signature { font-size: 0.7em; height: 10px; border-radius: 0 0 4px 4px;}
+            opacity: 0.92;
+            background: linear-gradient(90deg, #ffd600 0%, #ff9800 100%);
+            border-radius: 0 0 32px 32px;
+            box-shadow: 0 -2px 24px #ffe08255;
+            margin-top: 16px;
+            height: 36px;
+            text-shadow: 0 2px 8px #ffb300, 0 0 8px #fffde7;
         }
         .particle {
             position: absolute;
@@ -240,120 +207,153 @@ html_code = """
             border-radius: 50%;
             opacity: 0.8;
             z-index: 1000;
+            box-shadow: 0 0 16px #ffd60088, 0 0 4px #fff;
+            animation: particle-float 0.8s linear;
         }
-        /* 音乐按钮样式 */
-        #music-btn {
+        @keyframes particle-float {
+            0% { opacity: 0.8; }
+            100% { opacity: 0; }
+        }
+        .fruit-half {
+            position: absolute;
+            pointer-events: none;
+            z-index: 900;
+            will-change: transform, opacity;
+            transition: transform 0.7s cubic-bezier(.4,2,.6,1), opacity 0.7s;
+            filter: drop-shadow(0 0 8px #ffd60088);
+        }
+        .score-float {
+            position: absolute;
+            pointer-events: none;
+            font-weight: bold;
+            font-family: 'Orbitron', 'Luckiest Guy', Arial, sans-serif;
+            z-index: 1200;
             font-size: 1.1em;
-            padding: 6px 10px;
-            border-radius: 50%;
-            background: #fffde7;
-            color: #ffb300;
-            border: 2px solid #ffe082;
-            margin-left: 0;
+            text-shadow: 0 2px 12px #fffbe7, 0 0 8px #ffd54f;
+            opacity: 0.97;
+            transition: transform 0.8s cubic-bezier(.4,2,.6,1), opacity 0.8s;
+            will-change: transform, opacity;
         }
-        #music-btn.on {
-            background: #ffe082;
-            color: #d32f2f;
+        #countdown {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%,-50%);
+            font-size: 3em;
+            color: #ff5722;
+            font-family: 'Orbitron', 'Luckiest Guy', cursive, sans-serif;
+            text-shadow: 0 4px 32px #fff3e0, 0 2px 0 #fff, 0 0 16px #ffd54f;
+            z-index: 2000;
+            pointer-events: none;
+            display: none;
+            letter-spacing: 0.18em;
+        }
+        .frozen {
+            filter: blur(2px) grayscale(0.6) brightness(1.1);
+            transition: filter 0.3s;
+        }
+        body.psy, #game-canvas.psy {
+            filter: invert(1) hue-rotate(180deg) contrast(1.1) !important;
+            transition: filter 0.5s;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>切水果游戏</h1>
+        <h1>水果忍者</h1>
         <div id="top-bar">
             <button id="toggle-instructions-btn">玩法说明</button>
-            <button id="mode-btn">模式：经典</button>
+            <button id="mode-btn">玩法：经典</button>
+            <button id="option-btn">选项：经典</button>
             <button id="music-btn" title="音乐开关">🎵</button>
         </div>
         <div id="instructions">
-            <b>游戏背景：</b>
-            <ul>
-                <li>你是一名水果忍者大师，挑战各种极限切割，体验多样玩法与创新特效！</li>
-            </ul>
-            <b>玩法模式详解：</b>
+            <b>玩法说明：</b>
             <ol>
-                <li><b>经典模式：</b>漏掉水果扣1命，切到炸弹直接结束。追求极限分数。</li>
-                <li><b>限时模式：</b>60秒内尽量多得分，炸弹扣5分但不会直接结束。</li>
-                <li><b>无尽模式：</b>无限生命，炸弹扣分但不会结束，挑战极限连击。</li>
-                <li><b>挑战模式：</b>水果速度逐渐加快，难度递增，炸弹更频繁出现。</li>
-                <li><b>创意模式：</b>融合多种特殊水果，偶尔出现“黄金水果”可获得超高分和全屏特效！</li>
+                <li><b>经典：</b>常规切水果，切到炸弹有惩罚。</li>
+                <li><b>特效：</b>每个水果都带有独特特效。</li>
             </ol>
-            <b>创新与特色：</b>
+            <b>操作：</b>
             <ul>
-                <li>多种特殊水果：<span style="color:#1976d2;">蓝莓</span>（减速）、<span style="color:#ff4081;">樱桃</span>（双倍分）、<span style="color:#43a047;">能量果</span>（全屏切割）、<span style="color:gold;">黄金果</span>（+10分+全屏特效）等。</li>
-                <li>酷炫粒子与音效：每次切割、连击、特殊事件均有独特音效与视觉反馈。</li>
-                <li>支持背景音乐，随时可开关。</li>
-                <li>自适应界面，手机/平板/PC均可畅玩。</li>
+                <li>用鼠标或手指在画布上划线切水果。</li>
+                <li>切中水果得分，连续切中有连击加成。</li>
+                <li>切到炸弹有惩罚。</li>
+                <li>点击“玩法”切换，点击“选项”切换模式，点击🎵切换音乐。</li>
             </ul>
-            <b>操作说明：</b>
-            <ul>
-                <li>用鼠标或手指在画布上快速划线切水果。</li>
-                <li>切中水果得分，连续切中多个水果可获得连击加成！</li>
-                <li>切到炸弹会有不同惩罚，具体见各模式说明。</li>
-                <li>点击“模式”按钮切换玩法，点击🎵切换音乐。</li>
-            </ul>
-            <span style="color:#888;">祝你玩得开心，挑战极限高分！</span>
+            <span style="color:#888;">祝你玩得开心！</span>
         </div>
         <div id="controls">
             <button id="start-btn">开始游戏</button>
-            <button id="reset-btn">重置</button>
         </div>
         <div id="status-bar">
-            <div id="mode">模式: 经典</div>
+            <div id="mode">玩法: 经典 | 选项: 经典</div>
             <div id="score">分数: 0</div>
+            <div id="highscore">最高: 0</div>
             <div id="combo">连击: 0</div>
             <div id="lives">生命: 3</div>
         </div>
-        <div id="game-area">
+        <div id="game-area" style="position:relative;">
             <canvas id="game-canvas" width="340" height="420"></canvas>
+            <div id="countdown"></div>
         </div>
         <div id="message"></div>
     </div>
-    <div id="signature">胖墩会武术 &amp; AI创意</div>
-    <!-- 音效与音乐资源 -->
+    <div id="signature">Fruit Ninja X</div>
     <audio id="bgm" src="https://cdn.jsdelivr.net/gh/zh-lx/picx@main/fruit_bgm.mp3" loop preload="auto"></audio>
     <audio id="cut-sound" src="https://cdn.jsdelivr.net/gh/zh-lx/picx@main/fruit_cut.mp3" preload="auto"></audio>
     <audio id="combo-sound" src="https://cdn.jsdelivr.net/gh/zh-lx/picx@main/fruit_combo.mp3" preload="auto"></audio>
     <audio id="bomb-sound" src="https://cdn.jsdelivr.net/gh/zh-lx/picx@main/fruit_bomb.mp3" preload="auto"></audio>
     <audio id="golden-sound" src="https://cdn.jsdelivr.net/gh/zh-lx/picx@main/fruit_golden.mp3" preload="auto"></audio>
+    <audio id="freeze-sound" src="https://cdn.jsdelivr.net/gh/zh-lx/picx@main/fruit_freeze.mp3" preload="auto"></audio>
+    <audio id="heal-sound" src="https://cdn.jsdelivr.net/gh/zh-lx/picx@main/fruit_heal.mp3" preload="auto"></audio>
     <script>
         // --- 配置 ---
+        const PLAY_MODES = [
+            {name: "经典", desc: "常规切水果，炸弹有惩罚", effect: false},
+            {name: "特效", desc: "每个水果都带有独特特效", effect: true}
+        ];
+        const GAME_OPTIONS = [
+            {name: "经典", desc: "漏掉水果扣命，切炸弹直接结束", time: null, endless: false, bombEnd: true, bombPenalty: 0},
+            {name: "限时", desc: "60秒内尽量多得分，炸弹扣5分", time: 60, endless: false, bombEnd: false, bombPenalty: 5},
+            {name: "无尽", desc: "无限生命，炸弹扣3分", time: null, endless: true, bombEnd: false, bombPenalty: 3}
+        ];
         const FRUITS = [
-            {name: "西瓜", emoji: "🍉", radius: 36, color: null, special: null},
-            {name: "苹果", emoji: "🍎", radius: 24, color: null, special: null},
-            {name: "橙子", emoji: "🍊", radius: 24, color: null, special: null},
-            {name: "柠檬", emoji: "🍋", radius: 20, color: null, special: null},
-            {name: "猕猴桃", emoji: "🥝", radius: 20, color: null, special: null},
-            {name: "香蕉", emoji: "🍌", radius: 22, color: null, special: null},
-            {name: "葡萄", emoji: "🍇", radius: 18, color: null, special: null},
-            {name: "草莓", emoji: "🍓", radius: 16, color: null, special: null},
-            {name: "蓝莓", emoji: "🫐", radius: 14, color: null, special: "slow"},
-            {name: "樱桃", emoji: "🍒", radius: 14, color: null, special: "double"},
-            {name: "能量果", emoji: "🧃", radius: 16, color: null, special: "sliceall"},
-            {name: "黄金果", emoji: "🥇", radius: 18, color: "gold", special: "golden"}
+            {name: "西瓜", emoji: "🍉", radius: 36, special: null, score: 3},
+            {name: "苹果", emoji: "🍎", radius: 24, special: null, score: 2},
+            {name: "橙子", emoji: "🍊", radius: 24, special: null, score: 2},
+            {name: "柠檬", emoji: "🍋", radius: 20, special: null, score: 1},
+            {name: "猕猴桃", emoji: "🥝", radius: 20, special: null, score: 1},
+            {name: "香蕉", emoji: "🍌", radius: 22, special: null, score: 1},
+            {name: "葡萄", emoji: "🍇", radius: 18, special: null, score: 1},
+            {name: "草莓", emoji: "🍓", radius: 16, special: null, score: 1},
+            {name: "蓝莓", emoji: "🫐", radius: 14, special: null, score: 1},
+            {name: "樱桃", emoji: "🍒", radius: 14, special: null, score: 1},
+            // 特效水果
+            {name: "冰冻果", emoji: "🧊", radius: 18, special: "freeze", score: 2},
+            {name: "回血果", emoji: "💖", radius: 18, special: "heal", score: 1},
+            {name: "全屏切割", emoji: "🧃", radius: 16, special: "sliceall", score: 1},
+            {name: "黄金果", emoji: "🥇", radius: 18, special: "golden", score: 10},
+            {name: "大满贯", emoji: "🎉", radius: 22, special: "grand", score: 0},
+            {name: "迷幻果", emoji: "🍄", radius: 18, special: "psy", score: 2},
+            {name: "巧克力", emoji: "🍫", radius: 18, special: "choco", score: 2},
+            {name: "随机果", emoji: "🧬", radius: 18, special: "random", score: 2},
+            {name: "幸运果", emoji: "🍀", radius: 18, special: "lucky", score: 2},
+            {name: "蜂蜜果", emoji: "🍯", radius: 18, special: "honey", score: 2}
         ];
-        const BOMB = {name: "炸弹", emoji: "💣", radius: 18, color: null, special: "bomb"};
-        // 各模式参数
-        const MODES = [
-            {name: "经典", desc: "漏掉水果扣命，切炸弹直接结束", time: null, endless: false, challenge: false, bombEnd: true, bombPenalty: 0, golden: false},
-            {name: "限时", desc: "60秒内尽量多得分，炸弹扣5分", time: 60, endless: false, challenge: false, bombEnd: false, bombPenalty: 5, golden: false},
-            {name: "无尽", desc: "无限生命，炸弹扣3分", time: null, endless: true, challenge: false, bombEnd: false, bombPenalty: 3, golden: false},
-            {name: "挑战", desc: "水果速度递增，炸弹更频繁", time: null, endless: false, challenge: true, bombEnd: true, bombPenalty: 0, golden: false},
-            {name: "创意", desc: "融合多种特殊水果，偶尔出现黄金果", time: null, endless: false, challenge: false, bombEnd: false, bombPenalty: 2, golden: true}
-        ];
-        // 概率参数
-        const FRUIT_PROB = [0.90, 0.85, 0.88, 0.80, 0.80]; // 各模式炸弹概率
-        const SPECIAL_PROB = [0.13, 0.15, 0.13, 0.18, 0.20]; // 各模式特殊水果概率
-        const GOLDEN_PROB = 0.04; // 创意模式黄金果概率
-        const GRAVITY = 0.28;
-        const LAUNCH_INTERVAL = [420, 800]; // ms
-        const FRUIT_SPEED = [6, 11];
-        const MAX_LIVES = 3;
+        const BOMB = {name: "炸弹", emoji: "💣", radius: 18, special: "bomb", score: -5};
+        const FRUIT_PROB = [0.90, 0.85, 0.88];
+        const SPECIAL_PROB = [0.13, 0.15, 0.13];
+        const GRAVITY = 0.32;
+        const LAUNCH_INTERVAL = [320, 700];
+        const FRUIT_SPEED = [7, 13];
+        let MAX_LIVES = 3;
+        let MAX_LIVES_LIMIT = 5;
 
         // --- 状态 ---
         let fruits = [];
         let trails = [];
         let score = 0;
+        let highscore = 0;
         let lives = MAX_LIVES;
         let running = false;
         let lastLaunch = 0;
@@ -366,25 +366,37 @@ html_code = """
         let gameOver = false;
         let combo = 0;
         let comboTimer = null;
-        let modeIdx = 0;
-        let mode = MODES[0];
+        let playModeIdx = 0;
+        let optionIdx = 0;
+        let playMode = PLAY_MODES[0];
+        let option = GAME_OPTIONS[0];
         let timeLeft = null;
         let timerInterval = null;
-        let fruitSpeedMul = 1;
-        let musicOn = false;
+        let musicOn = true;
+        let activeTouches = {};
+        let holding = false;
+        let frozen = false;
+        let freezeTimer = null;
+        let grandActive = false;
+        let luckyActive = false;
+        let chocoActive = false;
+        let honeyActive = false;
+        let psyActive = false;
 
         // --- 音效 ---
         function playSound(id) {
             let el = document.getElementById(id);
             if (!el) return;
             el.currentTime = 0;
+            el.volume = 0.7;
             el.play();
         }
         function playBGM(on) {
             let bgm = document.getElementById('bgm');
+            if (!bgm) return;
             if (on) {
-                bgm.volume = 0.35;
-                bgm.play();
+                bgm.volume = 0.45;
+                bgm.play().catch(()=>{});
             } else {
                 bgm.pause();
             }
@@ -395,20 +407,14 @@ html_code = """
             return Math.random() * (b - a) + a;
         }
         function pickFruit() {
-            // 创意模式黄金果
-            if (mode.golden && Math.random() < GOLDEN_PROB) {
-                return {...FRUITS.find(f=>f.special==="golden")};
-            }
-            // 炸弹概率
-            let bombProb = FRUIT_PROB[modeIdx] || 0.9;
+            let bombProb = FRUIT_PROB[optionIdx] || 0.9;
             if (Math.random() > bombProb) {
                 return {...BOMB};
             }
-            // 特殊水果概率
-            let specialProb = SPECIAL_PROB[modeIdx] || 0.12;
-            if (Math.random() < specialProb) {
-                let specials = FRUITS.filter(f=>f.special && f.special!=="golden");
-                return {...specials[Math.floor(Math.random()*specials.length)]};
+            let specialProb = SPECIAL_PROB[optionIdx] || 0.12;
+            if (playMode.effect && Math.random() < specialProb) {
+                let specials = FRUITS.filter(f=>f.special);
+                if (specials.length) return {...specials[Math.floor(Math.random()*specials.length)]};
             }
             let normals = FRUITS.filter(f=>!f.special);
             return {...normals[Math.floor(Math.random()*normals.length)]};
@@ -431,6 +437,21 @@ html_code = """
             ctx.scale(dpr, dpr);
         }
 
+        function loadHighscore() {
+            let key = `fruit_highscore_${playModeIdx}_${optionIdx}`;
+            let val = localStorage.getItem(key);
+            highscore = val ? parseInt(val) : 0;
+            document.getElementById('highscore').textContent = "最高: " + highscore;
+        }
+        function saveHighscore() {
+            let key = `fruit_highscore_${playModeIdx}_${optionIdx}`;
+            if (score > highscore) {
+                highscore = score;
+                localStorage.setItem(key, highscore);
+                document.getElementById('highscore').textContent = "最高: " + highscore;
+            }
+        }
+
         function resetGame() {
             fruits = [];
             trails = [];
@@ -440,77 +461,136 @@ html_code = """
             lastLaunch = 0;
             gameOver = false;
             combo = 0;
-            fruitSpeedMul = 1;
+            frozen = false;
+            grandActive = false;
+            luckyActive = false;
+            chocoActive = false;
+            honeyActive = false;
+            psyActive = false;
+            clearTimeout(freezeTimer);
+            clearTimeout(comboTimer);
             document.getElementById('score').textContent = "分数: 0";
             document.getElementById('lives').textContent = "生命: " + MAX_LIVES;
             document.getElementById('combo').textContent = "连击: 0";
             document.getElementById('message').textContent = "";
+            document.getElementById('game-canvas').classList.remove('frozen');
+            document.getElementById('game-canvas').classList.remove('psy');
+            document.body.classList.remove('psy');
             cancelAnimationFrame(animFrame);
             clearTimeout(launchTimer);
             clearInterval(timerInterval);
             ctx.clearRect(0,0,width,height);
-            if (mode.time) {
-                timeLeft = mode.time;
-                document.getElementById('mode').textContent = `模式: ${mode.name} (${timeLeft}s)`;
+            document.querySelectorAll('.fruit-half').forEach(e=>e.remove());
+            document.querySelectorAll('.score-float').forEach(e=>e.remove());
+            if (option.time) {
+                timeLeft = option.time;
+                document.getElementById('mode').textContent = `玩法: ${playMode.name} | 选项: ${option.name} (${timeLeft}s)`;
             } else {
-                document.getElementById('mode').textContent = `模式: ${mode.name}`;
+                document.getElementById('mode').textContent = `玩法: ${playMode.name} | 选项: ${option.name}`;
             }
+            loadHighscore();
+        }
+
+        // --- 分数飘字 ---
+        function createScoreFloat(x, y, value, color, fruit) {
+            let rect = canvas.getBoundingClientRect();
+            let px = rect.left + (x / width) * rect.width;
+            let py = rect.top + (y / height) * rect.height;
+            let el = document.createElement('div');
+            el.className = 'score-float';
+            el.textContent = (value > 0 ? "+" : "") + value;
+            el.style.left = (px - 18) + "px";
+            el.style.top = (py - 18) + "px";
+            el.style.color = color || (value > 0 ? "#e65100" : "#d32f2f");
+            el.style.fontSize = Math.max(18, Math.floor((fruit ? fruit.radius : 18) * 1.2)) + "px";
+            document.body.appendChild(el);
+            setTimeout(()=>{
+                el.style.transform = "translateY(-48px) scale(1.25)";
+                el.style.opacity = 0;
+            }, 10);
+            setTimeout(()=>{el.remove();}, 950);
+        }
+
+        // --- 倒计时 ---
+        function showCountdown(cb) {
+            let cd = document.getElementById('countdown');
+            cd.style.display = 'block';
+            let arr = ['3','2','1','Go!'];
+            let idx = 0;
+            function next() {
+                cd.textContent = arr[idx];
+                if (idx < arr.length-1) {
+                    setTimeout(()=>{ idx++; next(); }, 600);
+                } else {
+                    setTimeout(()=>{
+                        cd.style.display = 'none';
+                        cb && cb();
+                    }, 600);
+                }
+            }
+            next();
         }
 
         function startGame() {
             resetGame();
-            running = true;
-            if (mode.time) {
-                timeLeft = mode.time;
-                document.getElementById('mode').textContent = `模式: ${mode.name} (${timeLeft}s)`;
-                timerInterval = setInterval(()=>{
-                    if (!running) return;
-                    timeLeft--;
-                    document.getElementById('mode').textContent = `模式: ${mode.name} (${timeLeft}s)`;
-                    if (timeLeft <= 0) {
-                        endGame("⏰ 时间到！分数: " + score);
-                    }
-                }, 1000);
-            }
-            launchFruit();
-            animFrame = requestAnimationFrame(gameLoop);
+            showCountdown(()=>{
+                running = true;
+                if (option.time) {
+                    timeLeft = option.time;
+                    document.getElementById('mode').textContent = `玩法: ${playMode.name} | 选项: ${option.name} (${timeLeft}s)`;
+                    timerInterval = setInterval(()=>{
+                        if (!running) return;
+                        timeLeft--;
+                        document.getElementById('mode').textContent = `玩法: ${playMode.name} | 选项: ${option.name} (${timeLeft}s)`;
+                        if (timeLeft <= 0) {
+                            endGame("⏰ 时间到！分数: " + score);
+                        }
+                    }, 1000);
+                }
+                launchFruit();
+                animFrame = requestAnimationFrame(gameLoop);
+            });
         }
 
         // --- 生成水果 ---
         function launchFruit() {
             if (!running) return;
-            let count = Math.random() < 0.22 ? 2 : 1;
+            let count = (grandActive ? 8 : (Math.random() < 0.22 ? 2 : 1));
             for (let i = 0; i < count; i++) {
                 let fruit = pickFruit();
-                // 优化：水果从底部随机高度弹出，避免一上来就出界
-                let x = rand(40, width-40);
-                let y = height - rand(10, 40); // 靠近底部
-                let vx = rand(-3, 3) * fruitSpeedMul;
-                let vy = -rand(FRUIT_SPEED[0], FRUIT_SPEED[1]) * fruitSpeedMul;
+                let x = rand(width * 0.25, width * 0.75);
+                let y = height - rand(60, 90);
+                let vx = rand(-2.2, 2.2) * (honeyActive ? 0.6 : 1);
+                let vy = -rand(FRUIT_SPEED[0], FRUIT_SPEED[1]) * (honeyActive ? 0.6 : 1);
+                vx = Math.max(-5, Math.min(5, vx));
+                vy = Math.max(-20, Math.min(-5, vy));
                 fruits.push({
                     ...fruit,
-                    x, y, vx, vy, cut: false, falling: false, cutTime: null
+                    x, y, vx, vy, cut: false, falling: false, cutTime: null, halves: null
                 });
             }
             let next = rand(LAUNCH_INTERVAL[0], LAUNCH_INTERVAL[1]);
-            if (mode.challenge) {
-                fruitSpeedMul += 0.012; // 难度递增
+            if (grandActive) {
+                grandActive = false;
             }
             launchTimer = setTimeout(launchFruit, next);
         }
 
         // --- 粒子特效 ---
         function createParticles(x, y, color, emoji, type) {
-            let n = (type==="golden") ? 18 : 8;
+            let n = 8;
             for (let i=0; i<n; i++) {
                 let p = document.createElement('div');
                 p.className = 'particle';
-                let size = rand(8, (type==="golden"?28:16));
+                let size = rand(10, 18);
+                let rect = canvas.getBoundingClientRect();
+                let px = rect.left + (x / width) * rect.width;
+                let py = rect.top + (y / height) * rect.height;
                 p.style.width = size+'px';
                 p.style.height = size+'px';
-                p.style.left = (canvas.offsetLeft + x - size/2) + 'px';
-                p.style.top = (canvas.offsetTop + y - size/2) + 'px';
-                p.style.background = color || (type==="golden" ? 'gold' : 'rgba(255,200,0,0.7)');
+                p.style.left = (px - size/2) + 'px';
+                p.style.top = (py - size/2) + 'px';
+                p.style.background = color || 'rgba(255,200,0,0.7)';
                 p.style.opacity = 0.8;
                 p.style.fontSize = Math.floor(size*0.9)+'px';
                 p.style.textAlign = 'center';
@@ -521,56 +601,108 @@ html_code = """
                 let dx = rand(-2,2), dy = rand(-2,2);
                 setTimeout(()=>{
                     p.style.transition = 'all 0.7s cubic-bezier(.4,2,.6,1)';
-                    p.style.transform = `translate(${dx*30}px,${dy*30}px) scale(0.2)`;
+                    p.style.transform = `translate(${dx*36}px,${dy*36}px) scale(0.18)`;
                     p.style.opacity = 0;
                 }, 10);
-                setTimeout(()=>{p.remove();}, 800);
+                setTimeout(()=>{p.remove();}, 850);
             }
+        }
+
+        // --- 切割特效：水果切半 ---
+        function createFruitHalves(fruit, cutLine) {
+            let emoji = fruit.emoji;
+            let size = fruit.radius * 2;
+            let rect = canvas.getBoundingClientRect();
+            function clamp(val, min, max) { return Math.max(min, Math.min(max, val)); }
+            let fx = fruit.x, fy = fruit.y;
+            let x1 = cutLine.x1, y1 = cutLine.y1, x2 = cutLine.x2, y2 = cutLine.y2;
+            let dx = x2 - x1, dy = y2 - y1;
+            let len2 = dx*dx + dy*dy;
+            let t = len2 === 0 ? 0 : ((fx - x1) * dx + (fy - y1) * dy) / len2;
+            t = clamp(t, 0, 1);
+            let cx = x1 + t * dx;
+            let cy = y1 + t * dy;
+            let px = rect.left + (cx / width) * rect.width;
+            let py = rect.top + (cy / height) * rect.height;
+            let angle = Math.atan2(y2 - y1, x2 - x1);
+            let deg = angle*180/Math.PI;
+            let left = px - size/2;
+            let top = py - size/2;
+
+            let half1 = document.createElement('div');
+            half1.className = 'fruit-half';
+            half1.style.width = size + 'px';
+            half1.style.height = size + 'px';
+            half1.style.left = left + 'px';
+            half1.style.top = top + 'px';
+            half1.style.fontSize = (size*0.9) + 'px';
+            half1.style.lineHeight = size + 'px';
+            half1.style.textAlign = 'center';
+            half1.style.userSelect = 'none';
+            half1.style.overflow = 'hidden';
+            half1.style.clipPath = 'polygon(0 0, 50% 0, 50% 100%, 0 100%)';
+            half1.textContent = emoji;
+            half1.style.transform = `rotate(${deg}deg)`;
+
+            let half2 = document.createElement('div');
+            half2.className = 'fruit-half';
+            half2.style.width = size + 'px';
+            half2.style.height = size + 'px';
+            half2.style.left = left + 'px';
+            half2.style.top = top + 'px';
+            half2.style.fontSize = (size*0.9) + 'px';
+            half2.style.lineHeight = size + 'px';
+            half2.style.textAlign = 'center';
+            half2.style.userSelect = 'none';
+            half2.style.overflow = 'hidden';
+            half2.style.clipPath = 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)';
+            half2.textContent = emoji;
+            half2.style.transform = `rotate(${deg}deg)`;
+
+            document.body.appendChild(half1);
+            document.body.appendChild(half2);
+
+            setTimeout(()=>{
+                let dx = Math.cos(angle), dy = Math.sin(angle);
+                half1.style.transform = `rotate(${deg-18}deg) translate(${-36*dx-12*dy}px, ${-22*dy+12*dx}px) scale(0.7)`;
+                half1.style.opacity = 0;
+                half2.style.transform = `rotate(${deg+18}deg) translate(${36*dx+12*dy}px, ${22*dy-12*dx}px) scale(0.7)`;
+                half2.style.opacity = 0;
+            }, 10);
+            setTimeout(()=>{
+                half1.remove();
+                half2.remove();
+            }, 900);
         }
 
         // --- 绘制 ---
         function draw() {
             ctx.clearRect(0,0,width,height);
-            // 画水果
             for (let fruit of fruits) {
-                if (fruit.cut && Date.now() - fruit.cutTime > 400) continue;
+                if (fruit.cut) continue;
                 ctx.save();
-                ctx.font = `${Math.floor(fruit.radius*1.6)}px serif`;
+                ctx.font = `${Math.floor(fruit.radius*1.7)}px serif`;
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
-                if (fruit.name === "炸弹") {
-                    ctx.shadowColor = "#333";
-                    ctx.shadowBlur = 12;
-                } else if (fruit.special === "double") {
-                    ctx.shadowColor = "#ff4081";
-                    ctx.shadowBlur = 8;
-                } else if (fruit.special === "slow") {
-                    ctx.shadowColor = "#1976d2";
-                    ctx.shadowBlur = 8;
-                } else if (fruit.special === "sliceall") {
-                    ctx.shadowColor = "#43a047";
-                    ctx.shadowBlur = 8;
-                } else if (fruit.special === "golden") {
-                    ctx.shadowColor = "gold";
-                    ctx.shadowBlur = 16;
-                } else {
-                    ctx.shadowColor = "#fffde7";
-                    ctx.shadowBlur = 5;
-                }
-                ctx.globalAlpha = fruit.cut ? 0.5 : 1;
+                ctx.shadowColor = "#fffde7";
+                ctx.shadowBlur = 10;
+                ctx.globalAlpha = 1;
                 ctx.fillText(fruit.emoji, fruit.x, fruit.y);
                 ctx.restore();
             }
-            // 画切痕（只显示最近0.3秒的线条）
-            ctx.save();
-            ctx.strokeStyle = "#ff7043";
-            ctx.lineWidth = 4;
-            ctx.lineCap = "round";
-            ctx.globalAlpha = 0.7;
             let now = Date.now();
             for (let t of trails) {
                 if (!t.length) continue;
                 if (now - t[0].time > 300) continue;
+                ctx.save();
+                let grad = ctx.createLinearGradient(t[0].x, t[0].y, t[t.length-1].x, t[t.length-1].y);
+                grad.addColorStop(0, "#fffbe7");
+                grad.addColorStop(0.5, "#ff4081");
+                grad.addColorStop(1, "#ffd600");
+                ctx.strokeStyle = grad;
+                ctx.lineWidth = 10;
+                ctx.globalAlpha = 0.65;
+                ctx.lineCap = "round";
                 ctx.beginPath();
                 for (let i = 0; i < t.length; i++) {
                     let p = t[i];
@@ -578,30 +710,29 @@ html_code = """
                     else ctx.lineTo(p.x, p.y);
                 }
                 ctx.stroke();
+                ctx.restore();
             }
-            ctx.restore();
         }
 
         // --- 物理与碰撞 ---
         function update() {
-            let now = Date.now();
+            if (frozen) return;
             for (let fruit of fruits) {
                 if (fruit.cut) continue;
                 fruit.x += fruit.vx;
                 fruit.y += fruit.vy;
                 fruit.vy += GRAVITY;
             }
-            // 移除出界水果
             for (let i = fruits.length-1; i >= 0; i--) {
                 let fruit = fruits[i];
-                if (fruit.cut && now - fruit.cutTime > 400) {
+                if (fruit.cut) {
                     fruits.splice(i,1);
                     continue;
                 }
-                if (fruit.cut) continue;
                 if (fruit.y - fruit.radius > height+8) {
-                    if (fruit.name !== "炸弹" && !mode.endless) {
+                    if (fruit.name !== "炸弹" && !option.endless && !grandActive) {
                         lives -= 1;
+                        if (lives < 0) lives = 0;
                         document.getElementById('lives').textContent = "生命: " + lives;
                         if (lives <= 0) {
                             endGame("游戏结束！分数: " + score);
@@ -610,7 +741,6 @@ html_code = """
                     fruits.splice(i,1);
                 }
             }
-            // 清理过期切痕
             let tnow = Date.now();
             trails = trails.filter(t=>t.length && tnow-t[0].time<=300);
         }
@@ -621,7 +751,6 @@ html_code = """
             let hitFruits = [];
             for (let fruit of fruits) {
                 if (fruit.cut) continue;
-                // 线段与圆碰撞
                 let dx = fruit.x - x1;
                 let dy = fruit.y - y1;
                 let fx = x2 - x1;
@@ -635,14 +764,13 @@ html_code = """
                     fruit.cut = true;
                     fruit.cutTime = Date.now();
                     createParticles(fruit.x, fruit.y, null, fruit.emoji, fruit.special);
+                    createFruitHalves(fruit, {x1, y1, x2, y2});
                     hit = true;
                     hitFruits.push(fruit);
                 }
             }
             if (hitFruits.length) {
-                // 音效
                 playSound('cut-sound');
-                // 处理连击
                 combo += hitFruits.length;
                 document.getElementById('combo').textContent = "连击: " + combo;
                 if (combo >= 2) playSound('combo-sound');
@@ -653,55 +781,34 @@ html_code = """
                 }, 800);
 
                 for (let fruit of hitFruits) {
+                    let addScore = fruit.score || 1;
+                    let showColor = "#e65100";
                     if (fruit.name === "炸弹") {
                         playSound('bomb-sound');
-                        if (mode.bombEnd) {
+                        if (option.bombEnd) {
+                            createScoreFloat(fruit.x, fruit.y, fruit.score, "#d32f2f", fruit);
                             endGame("💣 切到炸弹，游戏结束！分数: " + score);
                             return true;
                         } else {
-                            score -= (mode.bombPenalty||2);
+                            addScore = fruit.score || -2;
+                            score += addScore;
                             if (score<0) score=0;
-                            showMsg("炸弹！扣分", "#d32f2f");
-                        }
-                    } else if (fruit.special === "double") {
-                        score += 2;
-                        showMsg("双倍分！+2", "#ff4081");
-                    } else if (fruit.special === "slow") {
-                        showMsg("减速！", "#1976d2");
-                        for (let f of fruits) {
-                            f.vx *= 0.7; f.vy *= 0.7;
-                        }
-                        score += 1;
-                    } else if (fruit.special === "sliceall") {
-                        showMsg("全屏切割！", "#43a047");
-                        for (let f of fruits) {
-                            if (!f.cut && f.name !== "炸弹") {
-                                f.cut = true;
-                                f.cutTime = Date.now();
-                                createParticles(f.x, f.y, null, f.emoji, f.special);
-                                score += 1;
-                            }
-                        }
-                        score += 1;
-                    } else if (fruit.special === "golden") {
-                        playSound('golden-sound');
-                        showMsg("黄金果！+10", "gold");
-                        score += 10;
-                        // 全屏粒子
-                        for (let j=0;j<8;j++) {
-                            createParticles(rand(0,width), rand(0,height), "gold", "🥇", "golden");
+                            createScoreFloat(fruit.x, fruit.y, addScore, "#d32f2f", fruit);
                         }
                     } else {
-                        score += 1;
+                        addScore = (fruit.score || 1);
+                        score += addScore;
+                        createScoreFloat(fruit.x, fruit.y, addScore, showColor, fruit);
                     }
                 }
-                // 连击加分
                 if (hitFruits.length >= 2) {
                     let bonus = hitFruits.length-1;
-                    score += bonus;
-                    showMsg(`连击！+${bonus}`, "#ff4081");
+                    let bonusScore = bonus;
+                    score += bonusScore;
                 }
+                if (score < 0) score = 0;
                 document.getElementById('score').textContent = "分数: " + score;
+                saveHighscore();
             }
             return hit;
         }
@@ -710,7 +817,7 @@ html_code = """
             let el = document.getElementById('message');
             el.textContent = msg;
             el.style.color = color || "#d32f2f";
-            setTimeout(()=>{el.textContent="";}, 900);
+            setTimeout(()=>{el.textContent="";}, 950);
         }
 
         // --- 游戏主循环 ---
@@ -727,51 +834,98 @@ html_code = """
             document.getElementById('message').textContent = msg;
             clearTimeout(launchTimer);
             clearInterval(timerInterval);
+            saveHighscore();
         }
 
         // --- 事件 ---
-        function getPos(e) {
+        function getPos(e, idx=0) {
             let rect = canvas.getBoundingClientRect();
             if (e.touches && e.touches.length) {
-                return {
-                    x: (e.touches[0].clientX - rect.left) * (width / rect.width),
-                    y: (e.touches[0].clientY - rect.top) * (height / rect.height)
-                };
+                let t = e.touches[idx] || e.changedTouches[idx] || e.touches[0];
+                let x = (t.clientX - rect.left) * (width / rect.width);
+                let y = (t.clientY - rect.top) * (height / rect.height);
+                if (psyActive) {
+                    x = width - x;
+                    y = height - y;
+                }
+                return {x, y};
             } else {
-                return {
-                    x: (e.clientX - rect.left) * (width / rect.width),
-                    y: (e.clientY - rect.top) * (height / rect.height)
-                };
+                let x = (e.clientX - rect.left) * (width / rect.width);
+                let y = (e.clientY - rect.top) * (height / rect.height);
+                if (psyActive) {
+                    x = width - x;
+                    y = height - y;
+                }
+                return {x, y};
             }
         }
 
+        // --- 切割事件 ---
         function onPointerDown(e) {
             if (!running) return;
-            isDrawing = true;
-            let pos = getPos(e);
-            lastPoint = pos;
-            let t = [{x: pos.x, y: pos.y, time: Date.now()}];
-            trails.push(t);
-            if (trails.length > 8) trails.shift();
+            holding = true;
+            if (e.touches && e.touches.length) {
+                for (let i=0; i<e.touches.length; i++) {
+                    let id = e.touches[i].identifier;
+                    let pos = getPos(e, i);
+                    activeTouches[id] = {last: pos};
+                    let t = [{x: pos.x, y: pos.y, time: Date.now()}];
+                    trails.push(t);
+                    if (trails.length > 12) trails.shift();
+                }
+            } else {
+                isDrawing = true;
+                let pos = getPos(e);
+                lastPoint = pos;
+                let t = [{x: pos.x, y: pos.y, time: Date.now()}];
+                trails.push(t);
+                if (trails.length > 12) trails.shift();
+            }
         }
         function onPointerMove(e) {
-            if (!isDrawing || !running) return;
-            let pos = getPos(e);
-            let trail = trails[trails.length-1];
-            if (trail.length > 0) {
-                let prev = trail[trail.length-1];
-                if (Math.hypot(pos.x-prev.x, pos.y-prev.y) > 3) {
-                    trail.push({x: pos.x, y: pos.y, time: Date.now()});
-                    checkCut(prev.x, prev.y, pos.x, pos.y);
+            if (!running) return;
+            if (e.touches && e.touches.length) {
+                for (let i=0; i<e.touches.length; i++) {
+                    let id = e.touches[i].identifier;
+                    let pos = getPos(e, i);
+                    let trail = trails[trails.length-1];
+                    if (!activeTouches[id]) continue;
+                    let prev = activeTouches[id].last;
+                    if (Math.hypot(pos.x-prev.x, pos.y-prev.y) > 3) {
+                        let t = [{x: prev.x, y: prev.y, time: Date.now()}, {x: pos.x, y: pos.y, time: Date.now()}];
+                        trails.push(t);
+                        if (trails.length > 12) trails.shift();
+                        checkCut(prev.x, prev.y, pos.x, pos.y);
+                        activeTouches[id].last = pos;
+                    }
+                }
+            } else if (isDrawing) {
+                let pos = getPos(e);
+                let trail = trails[trails.length-1];
+                if (trail.length > 0) {
+                    let prev = trail[trail.length-1];
+                    if (Math.hypot(pos.x-prev.x, pos.y-prev.y) > 3) {
+                        trail.push({x: pos.x, y: pos.y, time: Date.now()});
+                        checkCut(prev.x, prev.y, pos.x, pos.y);
+                        lastPoint = pos;
+                    }
                 }
             }
         }
         function onPointerUp(e) {
-            isDrawing = false;
-            lastPoint = null;
+            holding = false;
+            if (e.changedTouches && e.changedTouches.length) {
+                for (let i=0; i<e.changedTouches.length; i++) {
+                    let id = e.changedTouches[i].identifier;
+                    delete activeTouches[id];
+                }
+            } else {
+                isDrawing = false;
+                lastPoint = null;
+            }
         }
 
-        // --- 说明按钮/模式切换/音乐 ---
+        // --- 说明按钮/玩法/选项/音乐 ---
         document.addEventListener('DOMContentLoaded', function() {
             canvas = document.getElementById('game-canvas');
             ctx = canvas.getContext('2d');
@@ -791,28 +945,42 @@ html_code = """
                 }
             };
 
-            // 模式切换
+            // 玩法切换
             const modeBtn = document.getElementById('mode-btn');
             modeBtn.onclick = function() {
-                modeIdx = (modeIdx+1)%MODES.length;
-                mode = MODES[modeIdx];
-                modeBtn.textContent = "模式：" + mode.name;
-                document.getElementById('mode').textContent = `模式: ${mode.name}`;
+                playModeIdx = (playModeIdx+1)%PLAY_MODES.length;
+                playMode = PLAY_MODES[playModeIdx];
+                modeBtn.textContent = "玩法：" + playMode.name;
+                document.getElementById('mode').textContent = `玩法: ${playMode.name} | 选项: ${option.name}`;
+                resetGame();
+            };
+
+            // 选项切换
+            const optionBtn = document.getElementById('option-btn');
+            optionBtn.onclick = function() {
+                optionIdx = (optionIdx+1)%GAME_OPTIONS.length;
+                option = GAME_OPTIONS[optionIdx];
+                optionBtn.textContent = "选项：" + option.name;
+                document.getElementById('mode').textContent = `玩法: ${playMode.name} | 选项: ${option.name}`;
                 resetGame();
             };
 
             // 音乐按钮
             const musicBtn = document.getElementById('music-btn');
-            musicBtn.onclick = function() {
-                musicOn = !musicOn;
+            function setMusicBtnState() {
                 if (musicOn) {
                     musicBtn.classList.add('on');
-                    playBGM(true);
                 } else {
                     musicBtn.classList.remove('on');
-                    playBGM(false);
                 }
+            }
+            musicBtn.onclick = function() {
+                musicOn = !musicOn;
+                setMusicBtnState();
+                playBGM(musicOn);
             };
+            setMusicBtnState();
+            setTimeout(()=>{ playBGM(musicOn); }, 300);
 
             // 事件绑定
             canvas.addEventListener('mousedown', onPointerDown);
@@ -826,12 +994,10 @@ html_code = """
             canvas.addEventListener('touchcancel', function(e){onPointerUp(e); e.preventDefault();});
 
             document.getElementById('start-btn').onclick = startGame;
-            document.getElementById('reset-btn').onclick = resetGame;
 
             resetGame();
         });
 
-        // 自动暂停音乐（页面切换/隐藏时）
         document.addEventListener('visibilitychange', function() {
             if (document.hidden) {
                 playBGM(false);
@@ -847,4 +1013,4 @@ html_code = """
 if __name__ == "__main__":
     with open("fruit_slice.html", "w", encoding="utf-8") as f:
         f.write(html_code)
-    print("已生成 fruit_slice.html，请用浏览器打开体验切水果游戏。")
+    print("已生成 fruit_slice.html，请用浏览器打开体验水果忍者！")
