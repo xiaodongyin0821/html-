@@ -6,10 +6,11 @@
 - 小游戏合集（主界面）：index.html
 - 自动战斗生存：auto_battle_survivor.html
 - 五子棋：gomoku.html
-- 迷宫：stack_turtles.html
+- 迷宫：maze.html
 - 贪吃蛇：snake.html
 - 叠乌龟（汉诺克）：stack_turtles.html
 - 俄罗斯方块：tetris.html
+- 水果忍者：fruit_slice.html
 
 备注：**HTML文件可以直接在浏览器中打开并运行。**
 
@@ -25,8 +26,8 @@
 ## ⚠️ 注意：不要直接复制.py文件内容作为HTML源码！
 <img width="2046" height="1644" alt="msedge exe_20250728_103828" src="https://github.com/user-attachments/assets/b49c3650-4cb1-484a-bd54-d8b46c77c9cf" />
 
-注意事项：==若将py文件强转为html文件，需要去除冗余信息，~~否则手机端界面将直接显示未删除的代码~~ 。
-详见如下，除了" 此处是正文... "，其余均需要删除。==
+注意事项：若将py文件强转为html文件，需要去除冗余信息，~~否则手机端界面将直接显示未删除的代码~~ 。
+详见如下，除了" 此处是正文... "，其余均需要删除。
 ```python
 # 叠乌龟HTML+JS图形化实现
 # 保存为 stack_turtles.html 后用浏览器打开
